@@ -47,6 +47,7 @@ h1, h2, h3, .logo {
   color: var(--text-color);
   cursor: pointer;
   transition: all 0.3s ease;
+  text-decoration: none;
 }
 
 .logo:hover {
