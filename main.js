@@ -1,4 +1,5 @@
 import './style.css'
+import './quien-soy.css'
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -28,6 +29,20 @@ const observer = new IntersectionObserver((entries, observer) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('active');
+      entry.target.classList.add('visible'); // Para compatibilidad con quien-soy.css (.fade-element.visible)
+      
+      // Animación de barra de progreso (Quién Soy)
+      if (entry.target.classList.contains('skill-category')) {
+        const bars = entry.target.querySelectorAll('.bar-fill');
+        bars.forEach(bar => {
+          const width = bar.style.width; // El width esta seteado inline en HTML
+          bar.style.width = '0'; // Forzar 0 inicial
+          setTimeout(() => {
+            bar.style.width = width; // Restaurar el target width
+          }, 300);
+        });
+      }
+      
       observer.unobserve(entry.target);
     }
   });
@@ -35,7 +50,12 @@ const observer = new IntersectionObserver((entries, observer) => {
 
 // Observar cualquier elemento con la clase .reveal
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.reveal, .service-card, .bento-item, .glass-card, .timeline-item').forEach(el => {
+  const elements = [
+    '.reveal', '.service-card', '.bento-item', '.glass-card', '.timeline-item',
+    '.profile-image-wrapper', '.profile-text', '.skill-category', '.v-timeline-item', '.edu-card'
+  ];
+  
+  document.querySelectorAll(elements.join(', ')).forEach(el => {
     el.classList.add('reveal'); // Asegurar que tengan la clase base
     observer.observe(el);
   });
