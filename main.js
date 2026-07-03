@@ -249,13 +249,8 @@ const hideLoader = () => {
   }
 };
 
-if (document.readyState === 'complete') {
-  hideLoader();
-} else {
-  window.addEventListener('load', hideLoader);
-  // Fallback por si el evento load se pierde
-  setTimeout(hideLoader, 3000); 
-}
+// Mostrar el cargador por exactamente 2 segundos
+setTimeout(hideLoader, 2000);
 
 // ==========================================
 // CYBER MOBILE MENU INJECTION & LOGIC
