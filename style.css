@@ -1282,3 +1282,125 @@ footer {
   50% { transform: rotate(180deg) scale(1.1); }
   100% { transform: rotate(360deg) scale(0.8); }
 }
+
+/* ==============================================
+   CYBER HAMBURGER MENU (MOBILE)
+   ============================================== */
+
+/* Hamburger Button */
+.cyber-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 35px;
+  height: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 10000;
+  position: relative;
+}
+
+.cyber-hamburger span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: var(--text-color);
+  border-radius: 3px;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.cyber-hamburger.active span:nth-child(1) {
+  transform: translateY(11px) rotate(45deg);
+  background-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.cyber-hamburger.active span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.cyber-hamburger.active span:nth-child(3) {
+  transform: translateY(-11px) rotate(-45deg);
+  background-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* Mobile Menu Overlay */
+.cyber-mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(25px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Radial clip-path animation for innovative opening */
+  clip-path: circle(0% at calc(100% - 40px) 40px);
+  transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.cyber-mobile-menu.open {
+  clip-path: circle(150% at calc(100% - 40px) 40px);
+}
+
+/* Mobile Links */
+.cyber-mobile-menu ul {
+  list-style: none;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+.cyber-mobile-menu li {
+  margin: 1.5rem 0;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.5s ease;
+}
+
+.cyber-mobile-menu.open li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggering delays for list items */
+.cyber-mobile-menu.open li:nth-child(1) { transition-delay: 0.2s; }
+.cyber-mobile-menu.open li:nth-child(2) { transition-delay: 0.3s; }
+.cyber-mobile-menu.open li:nth-child(3) { transition-delay: 0.4s; }
+.cyber-mobile-menu.open li:nth-child(4) { transition-delay: 0.5s; }
+.cyber-mobile-menu.open li:nth-child(5) { transition-delay: 0.6s; }
+.cyber-mobile-menu.open li:nth-child(6) { transition-delay: 0.7s; }
+
+.cyber-mobile-menu a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: block;
+  position: relative;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* Glitch hover effect */
+.cyber-mobile-menu a:hover, .cyber-mobile-menu a.active {
+  color: #fff;
+  text-shadow: 
+    0 0 10px var(--accent-glow),
+    2px 2px 0px rgba(255, 0, 85, 0.7), 
+    -2px -2px 0px rgba(0, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .cyber-hamburger {
+    display: flex;
+  }
+}

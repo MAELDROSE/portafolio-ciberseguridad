@@ -256,3 +256,59 @@ if (document.readyState === 'complete') {
   // Fallback por si el evento load se pierde
   setTimeout(hideLoader, 3000); 
 }
+
+// ==========================================
+// CYBER MOBILE MENU INJECTION & LOGIC
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const navbar = document.querySelector('.navbar');
+  const navLinks = document.querySelector('.nav-links');
+  
+  if (navbar && navLinks) {
+    // 1. Inyectar botón Hamburguesa
+    const hamburgerBtn = document.createElement('button');
+    hamburgerBtn.classList.add('cyber-hamburger');
+    hamburgerBtn.setAttribute('aria-label', 'Toggle mobile menu');
+    hamburgerBtn.innerHTML = `
+      <span></span>
+      <span></span>
+      <span></span>
+    `;
+    navbar.appendChild(hamburgerBtn);
+
+    // 2. Crear y popular el Mobile Menu Overlay
+    const mobileMenuOverlay = document.createElement('div');
+    mobileMenuOverlay.classList.add('cyber-mobile-menu');
+    
+    // Clonar lista de enlaces
+    const clonedNavLinks = navLinks.cloneNode(true);
+    clonedNavLinks.classList.remove('nav-links');
+    
+    mobileMenuOverlay.appendChild(clonedNavLinks);
+    document.body.appendChild(mobileMenuOverlay);
+
+    // 3. Lógica de Interacción
+    const toggleMenu = () => {
+      hamburgerBtn.classList.toggle('active');
+      mobileMenuOverlay.classList.toggle('open');
+      
+      if (mobileMenuOverlay.classList.contains('open')) {
+        document.body.style.overflow = 'hidden'; // Bloquear scroll
+      } else {
+        document.body.style.overflow = ''; // Restaurar scroll
+      }
+    };
+
+    hamburgerBtn.addEventListener('click', toggleMenu);
+
+    // Cerrar el menú si hacen clic en un enlace
+    const mobileLinks = mobileMenuOverlay.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (mobileMenuOverlay.classList.contains('open')) {
+          toggleMenu();
+        }
+      });
+    });
+  }
+});
