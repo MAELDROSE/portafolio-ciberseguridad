@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacto | Denzel Rose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <nav class="navbar">
+        <div class="logo">&lt;Denzel/&gt;<span>Rose</span></div>
+        <ul class="nav-links">
+          <li><a href="/">Inicio</a></li>
+          <li><a href="/quien-soy.html">Quién Soy</a></li>
+          <li><a href="/servicios.html">Servicios</a></li>
+          <li><a href="/proyectos.html">Proyectos</a></li>
+          <li><a href="/metodologia.html">Metodología</a></li>
+          <li><a href="/contacto.html" class="btn-primary">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <main style="padding-top: 8rem; padding-bottom: 5rem;">
+        <section class="contact-page">
+          <div class="section-header">
+            <h2 class="glitch-title">Agenda una <span>Entrevista</span></h2>
+            <p>¿Buscas un Ingeniero en Ciberseguridad para blindar tu infraestructura o auditar tu código?</p>
+          </div>
+          
+          <div class="contact-split">
+            <!-- Form -->
+            <div class="contact-form glass-card">
+              <h3>Envíame un Mensaje</h3>
+              <form action="#" method="POST">
+                <div class="form-group">
+                  <label for="name">Nombre / Empresa</label>
+                  <input type="text" id="name" required placeholder="Ej. Tech Recruiter, Microsoft">
+                </div>
+                <div class="form-group">
+                  <label for="email">Correo Corporativo</label>
+                  <input type="email" id="email" required placeholder="tu@empresa.com">
+                </div>
+                <div class="form-group">
+                  <label for="message">Detalles de la Vacante / Proyecto</label>
+                  <textarea id="message" rows="4" required placeholder="Buscamos un Ingeniero con tu perfil para..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Enviar Mensaje</button>
+              </form>
+            </div>
+
+            <!-- WhatsApp & Info -->
+            <div class="contact-direct glass-card">
+              <h3>Contacto Directo</h3>
+              <p>La forma más rápida de agendar una llamada técnica conmigo es a través de WhatsApp o descargando mi CV.</p>
+              <div class="contact-methods">
+                <a href="#" id="whatsapp-btn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
+                  <span class="icon">💬</span> Enviar WhatsApp Seguro
+                </a>
+                <a href="mailto:tuemail@ejemplo.com" class="btn-email">
+                  <span class="icon">✉️</span> tuemail@ejemplo.com
+                </a>
+                <a href="#" class="btn-primary" style="margin-top: 1rem; text-align: center; justify-content: center;">
+                  <span class="icon">📄</span> Descargar Mi CV (PDF)
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2026 Denzel Rose. Todos los derechos reservados.</p>
+      </footer>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
