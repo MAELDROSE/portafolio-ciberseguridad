@@ -9,6 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- Galaxy Loader -->
+    <div id="galaxy-loader">
+      <div class="galaxy-spinner">
+        <div class="orbit"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+        <div class="core"></div>
+      </div>
+    </div>
     <div id="app">
       <nav class="navbar">
         <div class="logo">&lt;Denzel/&gt;<span>Rose</span></div>
@@ -43,8 +52,8 @@
                   <input type="email" id="email" required placeholder="tu@empresa.com">
                 </div>
                 <div class="form-group">
-                  <label for="message">Detalles de la Vacante / Proyecto</label>
-                  <textarea id="message" rows="4" required placeholder="Buscamos un Ingeniero con tu perfil para..."></textarea>
+                  <label for="message">Si necesitas un proyecto, detállalo por acá y lo vemos</label>
+                  <textarea id="message" rows="4" required placeholder="Escribe aquí los detalles..."></textarea>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%;">Enviar Mensaje</button>
               </form>
@@ -52,17 +61,18 @@
 
             <!-- WhatsApp & Info -->
             <div class="contact-direct glass-card">
-              <h3>Contacto Directo</h3>
-              <p>La forma más rápida de agendar una llamada técnica conmigo es a través de WhatsApp o descargando mi CV.</p>
-              <div class="contact-methods">
-                <a href="#" id="whatsapp-btn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
-                  <span class="icon">💬</span> Enviar WhatsApp Seguro
-                </a>
-                <a href="mailto:tuemail@ejemplo.com" class="btn-email">
-                  <span class="icon">✉️</span> tuemail@ejemplo.com
-                </a>
-                <a href="#" class="btn-primary" style="margin-top: 1rem; text-align: center; justify-content: center;">
-                  <span class="icon">📄</span> Descargar Mi CV (PDF)
+              <h3>Agendar Reunión Online</h3>
+              <p>Puedes usar mi calendario en tiempo real para reservar una llamada técnica o entrevista directamente. ¡Elige el horario que mejor te funcione!</p>
+              
+              <!-- Google Calendar Appointment iframe begin -->
+              <div style="width: 100%; height: 450px; border-radius: 12px; margin-top: 1rem; overflow: hidden; background: white;">
+                <iframe src="https://calendar.app.google/om2WFHRyLhd6HEVx7" style="border: 0; width: 100%; height: 100%;" frameborder="0"></iframe>
+              </div>
+              <!-- Google Calendar Appointment iframe end -->
+
+              <div class="contact-methods" style="margin-top: 2rem;">
+                <a href="#" id="whatsapp-btn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" style="width: 100%;">
+                  <span class="icon">💬</span> Chat Directo por WhatsApp
                 </a>
               </div>
             </div>

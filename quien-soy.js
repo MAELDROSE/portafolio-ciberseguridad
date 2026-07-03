@@ -44,3 +44,22 @@ elementsToAnimate.forEach(selector => {
     observer.observe(el);
   });
 });
+
+// Galaxy Loader Logic
+const hideLoader = () => {
+  const loader = document.getElementById('galaxy-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+    setTimeout(() => {
+      loader.style.display = 'none';
+    }, 600);
+  }
+};
+
+if (document.readyState === 'complete') {
+  hideLoader();
+} else {
+  window.addEventListener('load', hideLoader);
+  // Fallback por si el evento load se pierde
+  setTimeout(hideLoader, 3000); 
+}

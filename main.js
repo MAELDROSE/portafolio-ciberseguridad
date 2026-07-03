@@ -53,23 +53,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Interceptar formulario para mitigar XSS/CSRF en el Frontend
+  // Interceptar formulario para enviar correo por SMTP mediante Serverless API
   const contactForm = document.querySelector('.contact-form form');
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      // Sanitización básica de inputs (escapando HTML)
-      const sanitize = (str) => str.replace(/[&<>'"]/g, 
-        tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag]));
       
-      const name = sanitize(document.getElementById('name').value);
-      alert(`Mensaje seguro interceptado. \nNombre validado: ${name}\n\nNota: Como esto es un portafolio estático, no hay backend vulnerable a inyecciones.`);
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerText;
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+
+      try {
+        // Mostrar estado de carga
+        submitBtn.innerText = 'Enviando...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.disabled = true;
+
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, message })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('✅ ' + data.message);
+          contactForm.reset();
+        } else {
+          alert('❌ Error: ' + (data.message || 'No se pudo enviar el correo.'));
+        }
+      } catch (error) {
+        console.error('Error enviando formulario:', error);
+        alert('❌ Error de conexión. Intenta de nuevo más tarde.');
+      } finally {
+        // Restaurar botón
+        submitBtn.innerText = originalText;
+        submitBtn.style.opacity = '1';
+        submitBtn.disabled = false;
+      }
     });
   }
 });
@@ -148,15 +175,17 @@ closeModalActions.forEach(btn => {
 });
 
 // Cerrar al hacer clic fuera del modal (en el overlay oscuro)
-modalOverlay.addEventListener('click', (e) => {
-  if (e.target === modalOverlay) {
-    closeModal();
-  }
-});
+if (modalOverlay) {
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      closeModal();
+    }
+  });
+}
 
 // Cerrar con tecla ESC
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+  if (e.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
     closeModal();
   }
 });
@@ -208,3 +237,22 @@ setTimeout(() => {
     typingEffect();
   }
 }, 1000);
+
+// Galaxy Loader Logic
+const hideLoader = () => {
+  const loader = document.getElementById('galaxy-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+    setTimeout(() => {
+      loader.style.display = 'none';
+    }, 600);
+  }
+};
+
+if (document.readyState === 'complete') {
+  hideLoader();
+} else {
+  window.addEventListener('load', hideLoader);
+  // Fallback por si el evento load se pierde
+  setTimeout(hideLoader, 3000); 
+}
