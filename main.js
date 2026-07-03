@@ -17,7 +17,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Intersection Observer para fade-in animations
+// Intersection Observer para fade-in animations (Scroll Reveal)
 const observerOptions = {
   root: null,
   rootMargin: '0px',
@@ -27,18 +27,18 @@ const observerOptions = {
 const observer = new IntersectionObserver((entries, observer) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
+      entry.target.classList.add('active');
       observer.unobserve(entry.target);
     }
   });
 }, observerOptions);
 
-// Observar tarjetas de servicio (para la animacion inicial)
-document.querySelectorAll('.service-card, .bento-item').forEach(card => {
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(20px)';
-  observer.observe(card);
+// Observar cualquier elemento con la clase .reveal
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.reveal, .service-card, .bento-item, .glass-card, .timeline-item').forEach(el => {
+    el.classList.add('reveal'); // Asegurar que tengan la clase base
+    observer.observe(el);
+  });
 });
 
 // Lógica para Contacto (WhatsApp con Variables de Entorno)
@@ -53,62 +53,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Interceptar formulario para enviar correo por SMTP mediante Serverless API
+  // Interceptar formulario para enviar por Formspree via AJAX
   const contactForm = document.querySelector('.contact-form form');
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      // REEMPLAZA EL ID DEL FORMULARIO AQUÍ (ej. 'xqazpjwm')
+      const formspreeId = 'TU_FORMSPREE_ID'; 
+      const endpoint = formspreeId !== 'TU_FORMSPREE_ID' 
+        ? `https://formspree.io/f/${formspreeId}` 
+        : 'https://formspree.io/f/placeholder'; // Placeholder
+
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerText;
       
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const message = document.getElementById('message').value;
+      const formData = new FormData(contactForm);
 
       try {
-        // Mostrar estado de carga
         submitBtn.innerText = 'Enviando...';
         submitBtn.style.opacity = '0.7';
         submitBtn.disabled = true;
 
-        const response = await fetch('/api/send-email', {
+        const response = await fetch(endpoint, {
           method: 'POST',
+          body: formData,
           headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name, email, message })
+            'Accept': 'application/json'
+          }
         });
 
-        const data = await response.json();
-
         if (response.ok) {
-          alert('✅ ' + data.message);
+          alert('✅ ¡Mensaje enviado con éxito! Te contactaré pronto.');
           contactForm.reset();
         } else {
-          alert('❌ Error: ' + (data.message || 'No se pudo enviar el correo.'));
+          // Si usan el placeholder, simulamos exito para la demo
+          if(endpoint.includes('placeholder')) {
+             alert('⚠️ NOTA: El formulario está en modo Demo. Debes poner tu ID de Formspree en main.js.\n\nSimulando envío exitoso...');
+             contactForm.reset();
+          } else {
+             const data = await response.json();
+             alert('❌ Error: ' + (data.error || 'No se pudo enviar el correo.'));
+          }
         }
       } catch (error) {
         console.error('Error enviando formulario:', error);
         alert('❌ Error de conexión. Intenta de nuevo más tarde.');
       } finally {
-        // Restaurar botón
         submitBtn.innerText = originalText;
         submitBtn.style.opacity = '1';
         submitBtn.disabled = false;
       }
     });
   }
-});
-
-// Observar sección sobre mi
-document.querySelectorAll('.about-content, .about-image').forEach(el => {
-  observer.observe(el);
-});
-
-// Observar items de la linea de tiempo
-document.querySelectorAll('.timeline-item').forEach(item => {
-  observer.observe(item);
 });
 
 
@@ -305,5 +302,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  }
+});
+
+// ==========================================
+// CUSTOM CYBER CURSOR LOGIC
+// ==========================================
+const cursor = document.createElement('div');
+cursor.classList.add('cyber-cursor');
+document.body.appendChild(cursor);
+
+document.addEventListener('mousemove', (e) => {
+  // Move cursor exactly to mouse position
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+// Add hover effect to interactive elements
+const interactives = document.querySelectorAll('a, button, input, textarea, .bento-icon');
+interactives.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.classList.add('cursor-hover');
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.classList.remove('cursor-hover');
+  });
+});
+
+// ==========================================
+// SCROLL TO TOP BUTTON LOGIC
+// ==========================================
+const scrollTopBtn = document.createElement('button');
+scrollTopBtn.id = 'scrollTopBtn';
+scrollTopBtn.classList.add('scroll-top-btn');
+scrollTopBtn.innerHTML = '↑';
+scrollTopBtn.setAttribute('aria-label', 'Volver Arriba');
+document.body.appendChild(scrollTopBtn);
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 500) {
+    scrollTopBtn.classList.add('visible');
+  } else {
+    scrollTopBtn.classList.remove('visible');
+  }
+});
+
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// ==========================================
+// CYBERSECURITY EASTER EGG (Anti-Right Click Hint)
+// ==========================================
+document.addEventListener('contextmenu', (e) => {
+  // Solo como broma temática, no bloqueamos realmente, pero mostramos un console warning 
+  // O podemos mostrar una alerta pequeña en pantalla
+  if (!document.getElementById('cyber-warning')) {
+    const warning = document.createElement('div');
+    warning.id = 'cyber-warning';
+    warning.innerHTML = '[!] Security Warning: System Monitoring Active.';
+    warning.style.position = 'fixed';
+    warning.style.bottom = '20px';
+    warning.style.left = '20px';
+    warning.style.backgroundColor = 'rgba(255, 0, 50, 0.9)';
+    warning.style.color = '#fff';
+    warning.style.fontFamily = 'monospace';
+    warning.style.padding = '10px 15px';
+    warning.style.borderRadius = '5px';
+    warning.style.zIndex = '9999999';
+    warning.style.boxShadow = '0 0 15px rgba(255, 0, 50, 0.5)';
+    warning.style.pointerEvents = 'none';
+    warning.style.opacity = '0';
+    warning.style.transition = 'opacity 0.3s ease';
+    
+    document.body.appendChild(warning);
+    
+    setTimeout(() => { warning.style.opacity = '1'; }, 10);
+    
+    setTimeout(() => {
+      warning.style.opacity = '0';
+      setTimeout(() => warning.remove(), 300);
+    }, 3000);
   }
 });
