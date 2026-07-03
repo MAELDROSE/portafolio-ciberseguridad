@@ -45,10 +45,22 @@ h1, h2, h3, .logo {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
 
 .logo span {
   color: var(--accent-color);
+  transition: color 0.3s ease;
+}
+
+.logo:hover span {
+  color: #fff;
 }
 
 .nav-links {
