@@ -814,11 +814,11 @@ footer {
   animation: none; /* Pausar float normal al hacer hover */
 }
 
-/* Efecto aún más fuerte al hacer hover directo en el icono */
+/* Efecto aún más fuerte al hacer hover directo en el icono (Estable y sin vibraciones) */
 .bento-icon:hover {
-  transform: scale(1.6) translateY(-15px) rotate(15deg) !important;
+  transform: scale(1.6) translateY(-10px) rotate(15deg) !important;
   filter: drop-shadow(0 15px 25px rgba(59, 130, 246, 1)) !important;
-  animation: icon-bounce 0.6s ease forwards !important;
+  animation: none !important; /* Desactivar cualquier animación conflictiva */
 }
 
 .bento-icon.accent-icon {
@@ -1805,8 +1805,9 @@ footer {
 
 /* Additional effect if hovering directly over the emoji */
 .emoji-hover:hover {
-  transform: scale(1.6) rotate(15deg) translateY(-8px) !important;
+  transform: scale(1.6) rotate(15deg) translateY(-5px) !important;
   filter: drop-shadow(0 0 12px rgba(59, 130, 246, 1)) !important;
+  animation: none !important; /* Desactivar flotación al hacer hover directo */
 }
 
 @keyframes emoji-float {
