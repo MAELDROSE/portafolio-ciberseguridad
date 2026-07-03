@@ -652,7 +652,17 @@ footer {
   }
   
   .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .btn-primary, .btn-secondary, .bento-btn {
+    width: 100%;
+    text-align: center;
     justify-content: center;
+    box-sizing: border-box;
   }
   
   .hero h1 {
