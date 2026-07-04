@@ -1,4 +1,5 @@
 import { GoogleAuth } from 'google-auth-library';
+import { google } from 'googleapis';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,7 +42,46 @@ export default async function handler(req, res) {
       throw new Error('Failed to retrieve access token from Service Account');
     }
 
-    // 3. Hacer la llamada a la API de Gemini (v1beta)
+    // 3. Obtener eventos del calendario para inyectar disponibilidad
+    let calendarContext = "No hay información de calendario disponible por el momento.";
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    
+    if (calendarId) {
+      try {
+        const authClient = await auth.getClient();
+        const calendar = google.calendar({ version: 'v3', auth: authClient });
+        
+        const timeMin = new Date().toISOString();
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const timeMax = nextWeek.toISOString();
+        
+        const response = await calendar.events.list({
+          calendarId: calendarId,
+          timeMin: timeMin,
+          timeMax: timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+        });
+        
+        const events = response.data.items;
+        if (events && events.length > 0) {
+          const busyTimes = events.map(event => {
+            const start = event.start.dateTime || event.start.date;
+            const end = event.end.dateTime || event.end.date;
+            return `- Ocupado desde ${start} hasta ${end}`;
+          }).join('\n');
+          calendarContext = `La fecha y hora actual del servidor es: ${timeMin}.\nEstos son mis horarios OCUPADOS para los próximos 7 días:\n${busyTimes}\n(Cualquier otro horario está libre. Asume que trabajo de 9am a 6pm de Lunes a Viernes).`;
+        } else {
+          calendarContext = `La fecha y hora actual del servidor es: ${timeMin}.\nTengo toda mi agenda libre de Lunes a Viernes (9am a 6pm) durante los próximos 7 días.`;
+        }
+      } catch (err) {
+        console.error("Error fetching calendar:", err);
+        calendarContext = "Error al leer el calendario de Denzel. (Asume que está ocupado y ofrécele contactarlo por WhatsApp).";
+      }
+    }
+
+    // 4. Hacer la llamada a la API de Gemini (v1beta)
     // Nota: Para Service Accounts usamos Bearer token
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`;
     
@@ -56,12 +96,19 @@ Tus objetivos:
 1. Al inicio, pide el nombre completo y un correo electrónico de forma conversacional y amigable. Explícale brevemente que es para que Denzel pueda darle seguimiento a su caso, y asegúrale que su información es confidencial.
 2. Tu propósito es escuchar al cliente y asesorarlo sobre proyectos tecnológicos (Desarrollo web, ciberseguridad, integraciones, pentesting).
 3. Hazle sentir al usuario que Denzel es el experto ideal para ayudarle a hacer realidad su proyecto de forma segura.
-4. Una vez que tengas su nombre, correo y la idea de su proyecto, ofrécele DOS opciones para continuar: "Si deseas, puedo enviarle estos datos a Denzel por correo para que te contacte, o si prefieres una respuesta más rápida, escribe el comando /whatsapp para hablar directo con él."
-5. IMPORTANTE: 
-- Si el usuario acepta que le envíes la información por correo (o te dice que sí), genera SILENCIOSAMENTE este comando exacto (y nada más en ese mensaje, junto con una despedida amigable):
-[SEND_EMAIL] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta y el sistema que quiere"}
-- Si el usuario elige WhatsApp o escribe /whatsapp, genera SILENCIOSAMENTE este comando exacto (junto con una despedida):
-[OPEN_WHATSAPP] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta y el sistema que quiere"}
+4. Una vez que tengas su nombre, correo y la idea de su proyecto, ofrécele TRES opciones para continuar: "Si deseas, puedo enviarle estos datos a Denzel por correo, puedes escribir /whatsapp para hablar directo con él, o si prefieres, **puedo revisar su agenda y agendarte una reunión virtual de 30 minutos** ahora mismo."
+5. Si el usuario pide agendar una reunión, revisa la información de mi calendario (ver abajo), ofrécele un par de huecos libres (en su zona horaria aproximada o en la tuya).
+6. IMPORTANTE (Generación de comandos silenciados, no los muestres al usuario, solo genéralos y despídete): 
+- Si acepta que le envíes información por correo: 
+[SEND_EMAIL] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
+- Si elige WhatsApp o escribe /whatsapp: 
+[OPEN_WHATSAPP] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
+- Si confirman una fecha/hora EXACTA para una reunión (ej. "Mañana a las 3pm"), genera el comando con la fecha en formato ISO 8601 (Ej: 2026-07-04T15:00:00Z):
+[SCHEDULE_MEETING] {"name": "SuNombre", "email": "SuCorreo", "datetime": "YYYY-MM-DDTHH:MM:00Z", "topic": "Asunto"}
+
+=== CONTEXTO DE MI CALENDARIO EN TIEMPO REAL ===
+${calendarContext}
+=================================================
 
 Reglas estrictas:
 - Eres un asistente de preventa, no resuelvas problemas de código.

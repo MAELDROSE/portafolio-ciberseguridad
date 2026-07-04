@@ -142,6 +142,35 @@ export function initChatbot() {
             const errorMsg = "Ocurrió un error al procesar la notificación. Escribe /whatsapp para contactar a Denzel directamente.";
             addMessage(errorMsg, 'bot');
           }
+        } else if (response.includes("[SCHEDULE_MEETING]")) {
+          try {
+            const jsonStr = response.split("[SCHEDULE_MEETING]")[1].trim();
+            const meetData = JSON.parse(jsonStr);
+            
+            const infoMsg = "Sincronizando con el calendario de Denzel y agendando la reunión...";
+            conversationHistory.push({ role: 'model', parts: [{ text: infoMsg }] });
+            addMessage(infoMsg, 'bot');
+            
+            fetch('/api/schedule', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(meetData)
+            }).then(async (res) => {
+              if (res.ok) {
+                const data = await res.json();
+                const successMsg = `✅ ¡Reunión agendada exitosamente! Te he enviado una invitación de Google Calendar con el enlace de Google Meet a tu correo.\nEnlace directo: ${data.link}`;
+                addMessage(successMsg, 'bot');
+              } else {
+                throw new Error("Error scheduling");
+              }
+            }).catch(err => {
+              addMessage("Hubo un error al intentar agendar en el calendario. Usa /whatsapp para coordinar la reunión manualmente.", 'bot');
+            });
+            
+          } catch(e) {
+            console.error("Error parsing SCHEDULE_MEETING json", e);
+            addMessage("Ocurrió un error de sincronización temporal. Escribe /whatsapp para agendar manualmente.", 'bot');
+          }
         } else if (response.includes("[OPEN_WHATSAPP]")) {
           try {
             const jsonStr = response.split("[OPEN_WHATSAPP]")[1].trim();
