@@ -4,7 +4,7 @@
 
 // ⚠️ INSTRUCCIÓN PARA EL DUEÑO DEL PORTAFOLIO:
 // Sustituye el valor de GEMINI_API_KEY con tu propia clave gratuita de Google AI Studio.
-const GEMINI_API_KEY = "AQ.Ab8RN6J73eq44wFG54IYysT5z4sD-I-DmFLnpOzeIHVtWkkkmA"; 
+const GEMINI_API_KEY = "AQ.Ab8RN6Kw45pDidJHHDT64XUmNG2SjIVgBl9BXHtk-SgYaDZvTQ"; 
 
 const SYSTEM_PROMPT = `
 Eres D.R. SYSTEM CORE, la Inteligencia Artificial y asistente virtual de Denzel Rose. 
