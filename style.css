@@ -1147,11 +1147,11 @@ footer {
 /* Responsiveness */
 @media (max-width: 900px) {
   .roadmap-line {
-    left: 30px;
+    left: 40px;
   }
   
   .roadmap-step::before {
-    left: 30px;
+    left: 40px;
   }
   
   .step-left, .step-right {
@@ -1165,11 +1165,52 @@ footer {
   
   .step-left .step-number,
   .step-right .step-number {
-    left: 50px;
+    left: 60px;
     right: auto;
     font-size: 8rem;
     top: -30px;
     transform: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .roadmap-container {
+    gap: 3rem; /* Reduce space between steps on mobile */
+  }
+
+  .roadmap-line {
+    left: 20px;
+  }
+  
+  .roadmap-step::before {
+    left: 20px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .step-content {
+    width: calc(100% - 50px);
+    padding: 1.5rem;
+  }
+  
+  .step-left .step-number,
+  .step-right .step-number {
+    left: 40px;
+    font-size: 5rem; /* Make background number smaller */
+    top: -15px;
+  }
+
+  .step-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-content h3 {
+    font-size: 1.4rem;
+  }
+
+  .step-content p {
+    font-size: 1rem;
   }
 }
 
