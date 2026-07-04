@@ -175,7 +175,8 @@ export function initChatbot() {
             
           } catch(e) {
             console.error("Error parsing SCHEDULE_MEETING json", e);
-            addMessage("Ocurrió un error de sincronización temporal. Escribe /whatsapp para agendar manualmente.", 'bot');
+            let rawMatch = response.split("[SCHEDULE_MEETING]")[1] || "Nada";
+            addMessage(`Ocurrió un error de sincronización temporal (JSON parse failed: ${e.message}). Raw output: ${rawMatch.substring(0,100)}... Escribe /whatsapp para agendar manualmente.`, 'bot');
           }
         } else if (response.includes("[OPEN_WHATSAPP]")) {
           try {
