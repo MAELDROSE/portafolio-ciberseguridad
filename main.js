@@ -413,6 +413,11 @@ document.addEventListener('contextmenu', (e) => {
 // 3D TILT & GLARE EFFECT (2030 Holographic Cards)
 // ==========================================
 const init3DTilt = () => {
+  // Evitar en dispositivos táctiles (móviles/tablets) para que el scroll sea fluido y no haya "hover pegajoso"
+  if (window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 1024) {
+    return;
+  }
+  
   const cards = document.querySelectorAll('.skill-category, .v-timeline-content, .edu-card, .bento-item, .project-card');
   
   cards.forEach(card => {
