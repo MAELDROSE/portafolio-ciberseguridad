@@ -50,25 +50,18 @@ export default async function handler(req, res) {
       },
       attendees: [
         { email: email }
-      ],
-      conferenceData: {
-        createRequest: {
-          requestId: `meet_${Date.now()}`,
-          conferenceSolutionKey: { type: 'hangoutsMeet' }
-        }
-      }
+      ]
     };
 
     const response = await calendar.events.insert({
       calendarId: calendarId,
       resource: event,
-      conferenceDataVersion: 1,
       sendUpdates: 'all' // Enviar correo a los invitados
     });
 
     return res.status(200).json({ 
       success: true, 
-      link: response.data.hangoutLink 
+      link: response.data.htmlLink 
     });
 
   } catch (error) {
