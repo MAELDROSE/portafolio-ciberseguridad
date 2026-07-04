@@ -94,46 +94,39 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // REEMPLAZA EL ID DEL FORMULARIO AQUÍ (ej. 'xqazpjwm')
-      const formspreeId = 'TU_FORMSPREE_ID'; 
-      const endpoint = formspreeId !== 'TU_FORMSPREE_ID' 
-        ? `https://formspree.io/f/${formspreeId}` 
-        : 'https://formspree.io/f/placeholder'; // Placeholder
-
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerText;
       
       const formData = new FormData(contactForm);
+      const dataObj = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        message: formData.get('message')
+      };
 
       try {
         submitBtn.innerText = 'Enviando...';
         submitBtn.style.opacity = '0.7';
         submitBtn.disabled = true;
 
-        const response = await fetch(endpoint, {
+        const response = await fetch('/api/send-email', {
           method: 'POST',
-          body: formData,
           headers: {
-            'Accept': 'application/json'
-          }
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataObj)
         });
 
         if (response.ok) {
           alert('✅ ¡Mensaje enviado con éxito! Te contactaré pronto.');
           contactForm.reset();
         } else {
-          // Si usan el placeholder, simulamos exito para la demo
-          if(endpoint.includes('placeholder')) {
-             alert('⚠️ NOTA: El formulario está en modo Demo. Debes poner tu ID de Formspree en main.js.\n\nSimulando envío exitoso...');
-             contactForm.reset();
-          } else {
-             const data = await response.json();
-             alert('❌ Error: ' + (data.error || 'No se pudo enviar el correo.'));
-          }
+           const data = await response.json();
+           alert('❌ Error: ' + (data.message || 'No se pudo enviar el correo.'));
         }
       } catch (error) {
         console.error('Error enviando formulario:', error);
-        alert('❌ Error de conexión. Intenta de nuevo más tarde.');
+        alert('❌ Error de conexión al servidor de correos. Intenta de nuevo más tarde.');
       } finally {
         submitBtn.innerText = originalText;
         submitBtn.style.opacity = '1';
