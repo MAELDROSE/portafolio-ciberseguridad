@@ -124,8 +124,10 @@ export function initChatbot() {
       if (response) {
         if (response.includes("[SEND_EMAIL]")) {
           try {
-            const jsonStr = response.split("[SEND_EMAIL]")[1].trim();
-            const emailData = JSON.parse(jsonStr);
+            let jsonStr = response.split("[SEND_EMAIL]")[1];
+            const match = jsonStr.match(/\{[\s\S]*\}/);
+            if (!match) throw new Error("No JSON found");
+            const emailData = JSON.parse(match[0]);
             
             // Send to backend silently without awaiting (or await it if preferred, but doing it asynchronously is fine)
             fetch('/api/send-email', {
@@ -144,8 +146,10 @@ export function initChatbot() {
           }
         } else if (response.includes("[SCHEDULE_MEETING]")) {
           try {
-            const jsonStr = response.split("[SCHEDULE_MEETING]")[1].trim();
-            const meetData = JSON.parse(jsonStr);
+            let jsonStr = response.split("[SCHEDULE_MEETING]")[1];
+            const match = jsonStr.match(/\{[\s\S]*\}/);
+            if (!match) throw new Error("No JSON found");
+            const meetData = JSON.parse(match[0]);
             
             const infoMsg = "Sincronizando con el calendario de Denzel y agendando la reunión...";
             conversationHistory.push({ role: 'model', parts: [{ text: infoMsg }] });
@@ -173,8 +177,10 @@ export function initChatbot() {
           }
         } else if (response.includes("[OPEN_WHATSAPP]")) {
           try {
-            const jsonStr = response.split("[OPEN_WHATSAPP]")[1].trim();
-            const waData = JSON.parse(jsonStr);
+            let jsonStr = response.split("[OPEN_WHATSAPP]")[1];
+            const match = jsonStr.match(/\{[\s\S]*\}/);
+            if (!match) throw new Error("No JSON found");
+            const waData = JSON.parse(match[0]);
             
             const waText = `Hola Denzel, vengo de tu portafolio web.\n\n👤 Nombre: ${waData.name}\n📧 Correo: ${waData.email}\n💬 Consulta / Sistema: ${waData.message}`;
             
