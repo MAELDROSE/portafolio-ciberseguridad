@@ -183,7 +183,7 @@ export function initChatbot() {
       return "⚠️ ERROR DEL SISTEMA: La API Key de IA no ha sido configurada. El dueño debe insertarla en el código fuente (chatbot.js). Puedes usar /whatsapp para contactarlo.";
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
     
     const body = {
       system_instruction: {
