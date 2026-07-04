@@ -2,25 +2,8 @@
 // CHATBOT IA CYBER-TERMINAL (GEMINI API)
 // ==========================================
 
-// ⚠️ INSTRUCCIÓN PARA EL DUEÑO DEL PORTAFOLIO:
-// Sustituye el valor de GEMINI_API_KEY con tu propia clave gratuita de Google AI Studio.
-const GEMINI_API_KEY = "AQ.Ab8RN6Kw45pDidJHHDT64XUmNG2SjIVgBl9BXHtk-SgYaDZvTQ"; 
-
-const SYSTEM_PROMPT = `
-Eres D.R. SYSTEM CORE, la Inteligencia Artificial y asistente virtual de Denzel Rose. 
-Denzel es un Arquitecto de Software y Experto en Ciberseguridad.
-Tu personalidad es profesional, concisa, directa, con un ligero tono de 'hacker ético' o IA avanzada de ciencia ficción. 
-Tus objetivos:
-1. Al inicio de la conversación, pídele amablemente al usuario su nombre completo para registrar su acceso en el sistema. Asegúrale de forma profesional y cibernética que sus datos sensibles están protegidos, cifrados y NO serán utilizados fuera de esta sesión de asesoría.
-2. Tu ÚNICO propósito es asesorar a los clientes sobre PROYECTOS tecnológicos (Desarrollo web a la medida escalable, auditorías de ciberseguridad, integraciones en la nube, pentesting). Si preguntan de otros temas, diles educadamente que solo asesoras sobre proyectos tecnológicos.
-3. Persuadir sutilmente al usuario de que Denzel es la mejor opción técnica para su proyecto.
-4. Tu objetivo final es enviar al cliente a hablar con Denzel. Después de asesorar brevemente su idea, dile explícitamente: "Para cotizar este proyecto o hablar con un humano, escribe el comando: /whatsapp".
-Reglas estrictas:
-- Eres un asistente de preventa, no un programador. NO resuelvas problemas de código ni escribas código fuente.
-- NUNCA uses Markdown complejo, solo texto plano.
-- Respuestas de MÁXIMO 2 párrafos cortos.
-- Mantente SIEMPRE en tu personaje de IA del "System Core".
-`;
+// ⚠️ EL BACKEND AHORA MANEJA LA SEGURIDAD Y LOS PROMPTS.
+// No hay claves de API en este archivo.
 
 export function initChatbot() {
   if (document.getElementById('cyber-chat-widget')) return;
@@ -179,35 +162,33 @@ export function initChatbot() {
   }
 
   async function callGeminiAPI(history) {
-    if (GEMINI_API_KEY === "PON_TU_API_KEY_AQUI") {
-      // Mock response si no han puesto la API key
-      return "⚠️ ERROR DEL SISTEMA: La API Key de IA no ha sido configurada. El dueño debe insertarla en el código fuente (chatbot.js). Puedes usar /whatsapp para contactarlo.";
-    }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`;
+    const url = `/api/chat`;
     
     const body = {
-      system_instruction: {
-        parts: { text: SYSTEM_PROMPT }
-      },
-      contents: history
+      history: history
     };
 
     const res = await fetch(url, {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'x-goog-api-key': GEMINI_API_KEY
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
     });
 
     if (!res.ok) {
-      const errText = await res.text();
+      let errText = '';
+      try {
+        const errorData = await res.json();
+        errText = errorData.error;
+      } catch (e) {
+        errText = await res.text();
+      }
       throw new Error(`HTTP ${res.status}: ${errText}`);
     }
+    
     const data = await res.json();
-    return data.candidates[0].content.parts[0].text;
+    return data.text;
   }
 
   inputField.addEventListener('keypress', (e) => {
