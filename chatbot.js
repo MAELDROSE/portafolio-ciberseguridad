@@ -4,7 +4,7 @@
 
 // ⚠️ INSTRUCCIÓN PARA EL DUEÑO DEL PORTAFOLIO:
 // Sustituye el valor de GEMINI_API_KEY con tu propia clave gratuita de Google AI Studio.
-const GEMINI_API_KEY = "AQ.Ab8RN6LrF6AR40q7ir3Q-Dr6azmRLBDhYMHTkN5W-jgLHLCDqw"; 
+const GEMINI_API_KEY = "AQ.Ab8RN6J73eq44wFG54IYysT5z4sD-I-DmFLnpOzeIHVtWkkkmA"; 
 
 const SYSTEM_PROMPT = `
 Eres D.R. SYSTEM CORE, la Inteligencia Artificial y asistente virtual de Denzel Rose. 
@@ -183,7 +183,7 @@ export function initChatbot() {
       return "⚠️ ERROR DEL SISTEMA: La API Key de IA no ha sido configurada. El dueño debe insertarla en el código fuente (chatbot.js). Puedes usar /whatsapp para contactarlo.";
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`;
     
     const body = {
       system_instruction: {
@@ -194,7 +194,10 @@ export function initChatbot() {
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-goog-api-key': GEMINI_API_KEY
+      },
       body: JSON.stringify(body)
     });
 
