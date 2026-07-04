@@ -61,6 +61,8 @@ export function initUniverseCanvas() {
       { r: 30, g: 80, b: 200 },   // blue
       { r: 180, g: 50, b: 120 },  // pink
       { r: 20, g: 120, b: 180 },  // cyan
+      { r: 200, g: 20, b: 40 },   // intense crimson red
+      { r: 150, g: 30, b: 60 },   // deep wine red
     ];
     for (let i = 0; i < 5; i++) {
       const c = colors[Math.floor(Math.random() * colors.length)];
@@ -111,9 +113,10 @@ export function initUniverseCanvas() {
         const angle = armOffset + t * 4 + (Math.random() - 0.5) * 0.6;
         const spread = (Math.random() - 0.5) * dist * 0.3;
 
-        const hue = 200 + Math.random() * 60; // blue-purple range
-        const sat = 60 + Math.random() * 30;
-        const light = 60 + Math.random() * 30;
+        // Innovative Crimson / Deep Red / Orange hue
+        const hue = (340 + Math.random() * 45) % 360; 
+        const sat = 70 + Math.random() * 30;
+        const light = 50 + Math.random() * 40;
         const size = Math.random() * 2 + 0.5;
 
         galaxyParticles.push({
@@ -128,7 +131,7 @@ export function initUniverseCanvas() {
       }
     }
 
-    // Core glow particles
+    // Core glow particles (super bright white/yellow/orange in center)
     for (let i = 0; i < 80; i++) {
       const dist = Math.random() * 20;
       const angle = Math.random() * Math.PI * 2;
@@ -137,9 +140,9 @@ export function initUniverseCanvas() {
         angle,
         spread: 0,
         size: Math.random() * 2 + 1,
-        hue: 40 + Math.random() * 20,
-        sat: 80,
-        light: 85 + Math.random() * 15,
+        hue: 15 + Math.random() * 30, // Orange/Gold
+        sat: 90,
+        light: 70 + Math.random() * 30,
         opacity: Math.random() * 0.8 + 0.2,
         orbitSpeed: 0.008 + Math.random() * 0.005,
       });
@@ -243,13 +246,14 @@ export function initUniverseCanvas() {
 
   function drawGalaxy() {
     const cx = W / 2, cy = H / 2;
-    // Core glow
-    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
-    coreGrad.addColorStop(0, 'rgba(255, 220, 180, 0.3)');
-    coreGrad.addColorStop(0.3, 'rgba(180, 140, 255, 0.1)');
-    coreGrad.addColorStop(1, 'rgba(100, 80, 200, 0)');
+    // Core glow (fiery crimson/orange to transparent)
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 80);
+    coreGrad.addColorStop(0, 'rgba(255, 200, 150, 0.5)'); // White-hot center
+    coreGrad.addColorStop(0.2, 'rgba(255, 50, 50, 0.2)'); // Intense crimson ring
+    coreGrad.addColorStop(0.6, 'rgba(150, 0, 50, 0.08)'); // Deep red edge
+    coreGrad.addColorStop(1, 'rgba(50, 0, 20, 0)');
     ctx.fillStyle = coreGrad;
-    ctx.fillRect(cx - 60, cy - 60, 120, 120);
+    ctx.fillRect(cx - 80, cy - 80, 160, 160);
 
     galaxyParticles.forEach(p => {
       p.angle += p.orbitSpeed;
