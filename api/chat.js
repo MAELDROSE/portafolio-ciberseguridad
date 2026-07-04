@@ -142,7 +142,11 @@ Reglas estrictas:
     const replyText = data.candidates[0].content.parts[0].text;
 
     // 4. Devolver la respuesta al Frontend
-    return res.status(200).json({ text: replyText });
+    let finalResponse = replyText;
+    if (calendarContext.includes("Detalle técnico:")) {
+       finalResponse += "\n\n[DEBUG TÉCNICO INYECTADO: " + calendarContext + "]";
+    }
+    return res.status(200).json({ text: finalResponse });
 
   } catch (error) {
     console.error('API Chat Error:', error);
