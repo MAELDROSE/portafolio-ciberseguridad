@@ -143,9 +143,31 @@ export function initChatbot() {
       hideTypingIndicator();
       
       if (response) {
-        // Guardar la respuesta de la IA en el historial
-        conversationHistory.push({ role: 'model', parts: [{ text: response }] });
-        addMessage(response, 'bot');
+        if (response.includes("[SEND_EMAIL]")) {
+          try {
+            const jsonStr = response.split("[SEND_EMAIL]")[1].trim();
+            const emailData = JSON.parse(jsonStr);
+            
+            // Send to backend silently without awaiting (or await it if preferred, but doing it asynchronously is fine)
+            fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: emailData.name, email: emailData.email, message: emailData.message })
+            });
+
+            const successMsg = "✅ He enviado tu consulta y datos de contacto a Denzel de forma segura. Se comunicará contigo lo más pronto posible.";
+            conversationHistory.push({ role: 'model', parts: [{ text: successMsg }] });
+            addMessage(successMsg, 'bot');
+          } catch(e) {
+            console.error("Error parsing SEND_EMAIL json", e);
+            const errorMsg = "Ocurrió un error al procesar la notificación. Escribe /whatsapp para contactar a Denzel directamente.";
+            addMessage(errorMsg, 'bot');
+          }
+        } else {
+          // Guardar la respuesta normal de la IA en el historial
+          conversationHistory.push({ role: 'model', parts: [{ text: response }] });
+          addMessage(response, 'bot');
+        }
       } else {
         addMessage("Error de conexión con el Core. Intente de nuevo.", 'bot');
       }
