@@ -408,3 +408,68 @@ document.addEventListener('contextmenu', (e) => {
     }, 3000);
   }
 });
+
+// ==========================================
+// 3D TILT & GLARE EFFECT (2030 Holographic Cards)
+// ==========================================
+const init3DTilt = () => {
+  const cards = document.querySelectorAll('.skill-category, .v-timeline-content, .edu-card, .bento-item, .project-card');
+  
+  cards.forEach(card => {
+    card.style.transformStyle = 'preserve-3d';
+    card.style.perspective = '1000px';
+    
+    // Crear elemento para el reflejo (glare) si no existe
+    if (!card.querySelector('.card-glare')) {
+      const glare = document.createElement('div');
+      glare.classList.add('card-glare');
+      card.appendChild(glare);
+    }
+
+    const glare = card.querySelector('.card-glare');
+
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left; // posición X interna
+      const y = e.clientY - rect.top;  // posición Y interna
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Ángulo máximo de inclinación (12 grados)
+      const rotateX = ((centerY - y) / centerY) * 12;
+      const rotateY = ((x - centerX) / centerX) * 12;
+      
+      // Aplicar transformaciones 3D a la tarjeta
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      
+      // Brillo reflectivo dinámico
+      const glareX = (x / rect.width) * 100;
+      const glareY = (y / rect.height) * 100;
+      glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 80%)`;
+      glare.style.opacity = '1';
+    });
+
+    card.addEventListener('mouseleave', () => {
+      // Regresar suavemente a la posición original
+      card.style.transition = 'transform 0.5s ease, box-shadow 0.5s ease';
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      glare.style.transition = 'opacity 0.5s ease';
+      glare.style.opacity = '0';
+      
+      setTimeout(() => {
+        card.style.transition = '';
+        glare.style.transition = '';
+      }, 500);
+    });
+
+    card.addEventListener('mouseenter', () => {
+      card.style.transition = 'none';
+      glare.style.transition = 'none';
+    });
+  });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  init3DTilt();
+});

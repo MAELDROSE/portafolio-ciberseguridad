@@ -197,6 +197,8 @@ h1, h2, h3, .logo {
 
 /* Glass Card Code snippet */
 .glass-card {
+  position: relative;
+  overflow: hidden;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   padding: 2rem;
@@ -1941,4 +1943,19 @@ footer {
   color: #fff;
   box-shadow: 0 0 20px var(--accent-glow);
   transform: translateY(-5px);
+}
+
+/* Holographic Card Glare (2030 effect) */
+.card-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 10;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 80%);
 }
