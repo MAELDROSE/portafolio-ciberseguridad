@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     }
 
     // 3. Obtener eventos del calendario para inyectar disponibilidad
-    let calendarContext = "No hay información de calendario disponible por el momento.";
+    let calendarContext = "Detalle técnico: La variable GOOGLE_CALENDAR_ID no está configurada en Vercel.";
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     
     if (calendarId) {
