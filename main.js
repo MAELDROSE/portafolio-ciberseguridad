@@ -2,8 +2,12 @@ import './style.css'
 import './quien-soy.css'
 import { initUniverseCanvas } from './universe-canvas.js'
 
-// Initialize Canvas Universe on load
-initUniverseCanvas();
+// Initialize Canvas Universe after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initUniverseCanvas);
+} else {
+  initUniverseCanvas();
+}
 
 
 // Smooth scrolling for anchor links
@@ -277,58 +281,65 @@ setTimeout(hideLoader, 2000);
 // ==========================================
 // CYBER MOBILE MENU INJECTION & LOGIC
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+const initMobileMenu = () => {
   const navbar = document.querySelector('.navbar');
   const navLinks = document.querySelector('.nav-links');
   
-  if (navbar && navLinks) {
-    // 1. Inyectar botón Hamburguesa
-    const hamburgerBtn = document.createElement('button');
-    hamburgerBtn.classList.add('cyber-hamburger');
-    hamburgerBtn.setAttribute('aria-label', 'Toggle mobile menu');
-    hamburgerBtn.innerHTML = `
-      <span></span>
-      <span></span>
-      <span></span>
-    `;
-    navbar.appendChild(hamburgerBtn);
+  // Guard: evitar doble inyección
+  if (!navbar || !navLinks || navbar.querySelector('.cyber-hamburger')) return;
+  
+  // 1. Inyectar botón Hamburguesa
+  const hamburgerBtn = document.createElement('button');
+  hamburgerBtn.classList.add('cyber-hamburger');
+  hamburgerBtn.setAttribute('aria-label', 'Toggle mobile menu');
+  hamburgerBtn.innerHTML = `
+    <span></span>
+    <span></span>
+    <span></span>
+  `;
+  navbar.appendChild(hamburgerBtn);
 
-    // 2. Crear y popular el Mobile Menu Overlay
-    const mobileMenuOverlay = document.createElement('div');
-    mobileMenuOverlay.classList.add('cyber-mobile-menu');
-    
-    // Clonar lista de enlaces
-    const clonedNavLinks = navLinks.cloneNode(true);
-    clonedNavLinks.classList.remove('nav-links');
-    
-    mobileMenuOverlay.appendChild(clonedNavLinks);
-    document.body.appendChild(mobileMenuOverlay);
+  // 2. Crear y popular el Mobile Menu Overlay
+  const mobileMenuOverlay = document.createElement('div');
+  mobileMenuOverlay.classList.add('cyber-mobile-menu');
+  
+  // Clonar lista de enlaces
+  const clonedNavLinks = navLinks.cloneNode(true);
+  clonedNavLinks.classList.remove('nav-links');
+  
+  mobileMenuOverlay.appendChild(clonedNavLinks);
+  document.body.appendChild(mobileMenuOverlay);
 
-    // 3. Lógica de Interacción
-    const toggleMenu = () => {
-      hamburgerBtn.classList.toggle('active');
-      mobileMenuOverlay.classList.toggle('open');
-      
+  // 3. Lógica de Interacción
+  const toggleMenu = () => {
+    hamburgerBtn.classList.toggle('active');
+    mobileMenuOverlay.classList.toggle('open');
+    
+    if (mobileMenuOverlay.classList.contains('open')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  };
+
+  hamburgerBtn.addEventListener('click', toggleMenu);
+
+  // Cerrar el menú si hacen clic en un enlace
+  mobileMenuOverlay.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
       if (mobileMenuOverlay.classList.contains('open')) {
-        document.body.style.overflow = 'hidden'; // Bloquear scroll
-      } else {
-        document.body.style.overflow = ''; // Restaurar scroll
+        toggleMenu();
       }
-    };
-
-    hamburgerBtn.addEventListener('click', toggleMenu);
-
-    // Cerrar el menú si hacen clic en un enlace
-    const mobileLinks = mobileMenuOverlay.querySelectorAll('a');
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        if (mobileMenuOverlay.classList.contains('open')) {
-          toggleMenu();
-        }
-      });
     });
-  }
-});
+  });
+};
+
+// Ejecutar inmediatamente si DOM ya está listo, o esperar
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMobileMenu);
+} else {
+  initMobileMenu();
+}
 
 // ==========================================
 // CUSTOM CYBER CURSOR LOGIC

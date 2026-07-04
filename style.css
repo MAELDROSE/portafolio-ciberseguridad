@@ -1346,14 +1346,22 @@ footer {
   align-items: center;
 }
 /* Universe Background & Dark Matter */
+#universe-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
 .universe-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 60%),
-              radial-gradient(circle at 70% 70%, rgba(255,255,255,0.06), transparent 50%),
-              radial-gradient(circle at 50% 50%, #000, #0a0a0a);
+  background: transparent;
   overflow: hidden;
   z-index: 1;
+  pointer-events: none;
 }
 .universe-bg::before,
 .universe-bg::after {
