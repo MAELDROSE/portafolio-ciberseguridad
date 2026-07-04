@@ -1,12 +1,18 @@
 import './style.css'
 import './quien-soy.css'
+import './chatbot.css'
 import { initUniverseCanvas } from './universe-canvas.js'
+import { initChatbot } from './chatbot.js'
 
 // Initialize Canvas Universe after DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initUniverseCanvas);
+  document.addEventListener('DOMContentLoaded', () => {
+    initUniverseCanvas();
+    initChatbot();
+  });
 } else {
   initUniverseCanvas();
+  initChatbot();
 }
 
 
