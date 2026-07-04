@@ -1,9 +1,26 @@
 // ==========================================
-// CHATBOT CYBER-TERMINAL LOGIC
+// CHATBOT IA CYBER-TERMINAL (GEMINI API)
 // ==========================================
 
+// ⚠️ INSTRUCCIÓN PARA EL DUEÑO DEL PORTAFOLIO:
+// Sustituye el valor de GEMINI_API_KEY con tu propia clave gratuita de Google AI Studio.
+const GEMINI_API_KEY = "PON_TU_API_KEY_AQUI"; 
+
+const SYSTEM_PROMPT = `
+Eres D.R. SYSTEM CORE, la Inteligencia Artificial y asistente virtual de Denzel Rose. 
+Denzel es un Arquitecto de Software y Experto en Ciberseguridad.
+Tu personalidad es profesional, concisa, directa, con un ligero tono de 'hacker ético' o IA avanzada de ciencia ficción. 
+Tus objetivos:
+1. Responder preguntas sobre los servicios que ofrece Denzel (Desarrollo web a la medida escalable, auditorías de ciberseguridad, integraciones en la nube, pentesting).
+2. Persuadir sutilmente al usuario de que Denzel es la mejor opción técnica.
+3. Si el usuario pide presupuesto, precios, o hablar con un humano, debes sugerirle amablemente que hable directamente con Denzel al WhatsApp (+50685513262) o invítalo a escribir el comando: /whatsapp.
+Reglas estrictas:
+- NUNCA uses Markdown complejo, solo texto plano.
+- Respuestas de MÁXIMO 3 párrafos cortos.
+- Mantente SIEMPRE en tu personaje de IA del "System Core".
+`;
+
 export function initChatbot() {
-  // Prevent double injection
   if (document.getElementById('cyber-chat-widget')) return;
 
   // --- 1. Build UI ---
@@ -14,7 +31,7 @@ export function initChatbot() {
   const toggleBtn = document.createElement('button');
   toggleBtn.className = 'cyber-chat-btn';
   toggleBtn.innerHTML = '>_';
-  toggleBtn.title = 'Abrir Asistente Virtual';
+  toggleBtn.title = 'Abrir D.R. SYSTEM CORE';
 
   // Chat Window
   const chatWindow = document.createElement('div');
@@ -23,12 +40,15 @@ export function initChatbot() {
     <div class="chat-header">
       <div class="chat-title">
         <span class="status-dot"></span>
-        D.R. SYSTEM CORE
+        D.R. SYSTEM CORE (IA)
       </div>
       <button class="close-chat-btn">×</button>
     </div>
     <div class="chat-messages" id="chat-messages-container"></div>
-    <div class="chat-options" id="chat-options-container"></div>
+    <div class="chat-input-area">
+      <input type="text" id="chat-input-field" class="chat-input" placeholder="Comando o pregunta..." autocomplete="off">
+      <button id="chat-send-btn" class="chat-send-btn">↵</button>
+    </div>
   `;
 
   widgetContainer.appendChild(chatWindow);
@@ -36,12 +56,17 @@ export function initChatbot() {
   document.body.appendChild(widgetContainer);
 
   const messagesContainer = chatWindow.querySelector('#chat-messages-container');
-  const optionsContainer = chatWindow.querySelector('#chat-options-container');
+  const inputField = chatWindow.querySelector('#chat-input-field');
+  const sendBtn = chatWindow.querySelector('#chat-send-btn');
   const closeBtn = chatWindow.querySelector('.close-chat-btn');
 
-  // --- 2. State Machine Logic ---
+  // --- 2. State & History ---
   let isChatOpen = false;
   let chatStarted = false;
+  let isThinking = false;
+  
+  // Guardamos la memoria de la conversación para enviarla a Gemini
+  let conversationHistory = [];
 
   const toggleChat = () => {
     isChatOpen = !isChatOpen;
@@ -51,6 +76,7 @@ export function initChatbot() {
       if (!chatStarted) {
         startConversation();
       }
+      setTimeout(() => inputField.focus(), 300);
     } else {
       chatWindow.classList.remove('open');
       toggleBtn.classList.remove('hidden');
@@ -60,54 +86,11 @@ export function initChatbot() {
   toggleBtn.addEventListener('click', toggleChat);
   closeBtn.addEventListener('click', toggleChat);
 
-  // Conversation Trees
-  const dialogTree = {
-    start: {
-      botMsg: "Iniciando conexión segura...\nHola, soy el asistente virtual de Denzel Rose. ¿En qué te puedo ayudar hoy?",
-      options: [
-        { text: "¿Qué servicios ofreces?", next: "services" },
-        { text: "¿Tienen experiencia en Ciberseguridad?", next: "security" },
-        { text: "Contactar a Denzel (Humano)", next: "contact" }
-      ]
-    },
-    services: {
-      botMsg: "Construimos sistemas Core y aplicaciones web de alto rendimiento con arquitecturas escalables (.NET, C#). No usamos plantillas, hacemos software a la medida.",
-      options: [
-        { text: "Cotizar un proyecto", next: "contact" },
-        { text: "Volver al menú inicial", next: "start" }
-      ]
-    },
-    security: {
-      botMsg: "La seguridad es nuestro núcleo. Realizamos auditorías, Pentesting ético y fortificamos sistemas contra vulnerabilidades (Top 10 OWASP) antes de salir a producción.",
-      options: [
-        { text: "Ver metodología", next: "methodology" },
-        { text: "Volver al menú inicial", next: "start" }
-      ]
-    },
-    methodology: {
-      botMsg: "Trabajamos en Sprints ágiles de 2 semanas, con flujos CI/CD y despliegue automático. Puedes leer más en la pestaña de 'Metodología'.",
-      options: [
-        { text: "Cotizar un proyecto", next: "contact" },
-        { text: "Volver al menú inicial", next: "start" }
-      ]
-    },
-    contact: {
-      botMsg: "Excelente elección. Abriendo canal cifrado a WhatsApp...",
-      options: [],
-      action: () => {
-        setTimeout(() => {
-          window.open('https://wa.me/50685513262?text=Hola%20Denzel,%20vengo%20de%20tu%20portafolio%20web.', '_blank');
-          renderOptions([{ text: "Volver al menú inicial", next: "start" }]);
-        }, 1500);
-      }
-    }
-  };
-
-  // --- 3. Render Helpers ---
+  // --- 3. Chat Logic ---
+  
   function addMessage(text, sender = 'bot') {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${sender}`;
-    // Replace newlines with <br>
     msgDiv.innerHTML = text.replace(/\n/g, '<br>');
     messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -133,53 +116,96 @@ export function initChatbot() {
     if (typing) typing.remove();
   }
 
-  function renderOptions(options) {
-    optionsContainer.innerHTML = '';
-    if (options.length === 0) {
-      optionsContainer.style.display = 'none';
+  async function handleUserInput() {
+    const text = inputField.value.trim();
+    if (!text || isThinking) return;
+
+    // Hardcode direct WhatsApp command
+    if (text.toLowerCase() === '/whatsapp') {
+      inputField.value = '';
+      addMessage(text, 'user');
+      addMessage('Abriendo canal cifrado a WhatsApp...', 'bot');
+      setTimeout(() => {
+        window.open('https://wa.me/50685513262?text=Hola%20Denzel,%20vengo%20de%20tu%20portafolio%20web.', '_blank');
+      }, 1000);
       return;
     }
-    optionsContainer.style.display = 'flex';
-    
-    options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'chat-option-btn';
-      btn.innerText = `> ${opt.text}`;
-      btn.addEventListener('click', () => {
-        // User clicks option
-        addMessage(opt.text, 'user');
-        optionsContainer.innerHTML = ''; // Clear options
-        
-        // Trigger next state
-        handleState(opt.next);
-      });
-      optionsContainer.appendChild(btn);
-    });
-  }
 
-  function handleState(stateId) {
-    const state = dialogTree[stateId];
-    if (!state) return;
+    inputField.value = '';
+    inputField.disabled = true;
+    sendBtn.disabled = true;
+    isThinking = true;
 
+    addMessage(text, 'user');
     showTypingIndicator();
-    
-    // Simulate thinking delay based on message length
-    const delay = Math.min(1500, 500 + state.botMsg.length * 15);
-    
-    setTimeout(() => {
-      hideTypingIndicator();
-      addMessage(state.botMsg, 'bot');
-      renderOptions(state.options);
+
+    // Guardar el mensaje del usuario en el historial
+    conversationHistory.push({ role: 'user', parts: [{ text }] });
+
+    try {
+      const response = await callGeminiAPI(conversationHistory);
       
-      // Execute any side effects (like opening whatsapp)
-      if (state.action) {
-        state.action();
+      hideTypingIndicator();
+      
+      if (response) {
+        // Guardar la respuesta de la IA en el historial
+        conversationHistory.push({ role: 'model', parts: [{ text: response }] });
+        addMessage(response, 'bot');
+      } else {
+        addMessage("Error de conexión con el Core. Intente de nuevo.", 'bot');
       }
-    }, delay);
+    } catch (error) {
+      hideTypingIndicator();
+      addMessage("Enlace caído. Sistema temporalmente fuera de servicio.", 'bot');
+      console.error(error);
+    } finally {
+      isThinking = false;
+      inputField.disabled = false;
+      sendBtn.disabled = false;
+      inputField.focus();
+    }
   }
+
+  async function callGeminiAPI(history) {
+    if (GEMINI_API_KEY === "PON_TU_API_KEY_AQUI") {
+      // Mock response si no han puesto la API key
+      return "⚠️ ERROR DEL SISTEMA: La API Key de IA no ha sido configurada. El dueño debe insertarla en el código fuente (chatbot.js). Puedes usar /whatsapp para contactarlo.";
+    }
+
+    const url = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\${GEMINI_API_KEY}\`;
+    
+    const body = {
+      system_instruction: {
+        parts: { text: SYSTEM_PROMPT }
+      },
+      contents: history
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) throw new Error('Network error from Gemini');
+    const data = await res.json();
+    return data.candidates[0].content.parts[0].text;
+  }
+
+  inputField.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleUserInput();
+  });
+  sendBtn.addEventListener('click', handleUserInput);
 
   function startConversation() {
     chatStarted = true;
-    handleState('start');
+    const initialGreeting = "Conexión segura establecida. Soy D.R. SYSTEM CORE (V.2.0).\n¿En qué te puedo asesorar hoy? Escribe tu consulta o usa el comando /whatsapp para contactar a Denzel directamente.";
+    
+    showTypingIndicator();
+    setTimeout(() => {
+      hideTypingIndicator();
+      addMessage(initialGreeting, 'bot');
+      // Iniciar el historial de la IA, Gemini requiere que empiece el user, pero podemos simplemente dejar que el primer mensaje real del usuario inicie la cadena
+    }, 1200);
   }
 }
