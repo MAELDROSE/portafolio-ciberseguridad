@@ -121,9 +121,12 @@
               </div>
               <!-- Google Calendar Appointment iframe end -->
 
-              <div class="contact-methods" style="margin-top: 2rem;">
+              <div class="contact-methods" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
                 <a href="https://wa.me/50685513262" id="whatsapp-btn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp" style="width: 100%;">
                   <span class="icon">💬</span> Contactar por WhatsApp
+                </a>
+                <a href="https://www.linkedin.com/in/denzel-rose-47bbba211/" target="_blank" rel="noopener noreferrer" class="btn-linkedin" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; background: #0077b5; color: white; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,119,181,0.4)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                  <span class="icon">🔗</span> Conectar por LinkedIn
                 </a>
               </div>
             </div>
@@ -133,7 +136,17 @@
       </main>
 
       <footer>
-        <p>&copy; 2026 Denzel Rose. Todos los derechos reservados.</p>
+        <div class="footer-container">
+          <p>&copy; 2026 Denzel Rose. Todos los derechos reservados.</p>
+          <div class="footer-socials">
+            <a href="https://www.linkedin.com/in/denzel-rose-47bbba211/" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <span>🔗</span> LinkedIn
+            </a>
+            <a href="https://github.com/MAELDROSE" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <span>💻</span> GitHub
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
     <script type="module" src="/main.js"></script>
