@@ -1,5 +1,10 @@
 import './style.css'
 import './quien-soy.css'
+import { initUniverseCanvas } from './universe-canvas.js'
+
+// Initialize Canvas Universe on load
+initUniverseCanvas();
+
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
