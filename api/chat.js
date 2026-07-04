@@ -27,7 +27,10 @@ export default async function handler(req, res) {
     // 2. Autenticar y obtener el Access Token usando google-auth-library
     const auth = new GoogleAuth({
       credentials,
-      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+      scopes: [
+        'https://www.googleapis.com/auth/cloud-platform',
+        'https://www.googleapis.com/auth/generative-language'
+      ]
     });
 
     const client = await auth.getClient();
