@@ -44,11 +44,9 @@ export default async function handler(req, res) {
       description: `Reunión agendada automáticamente por D.R. SYSTEM CORE.\nCliente: ${name}\nCorreo: ${email}`,
       start: {
         dateTime: startDate.toISOString(),
-        timeZone: 'America/Costa_Rica', // Assuming user's timezone, or let Google parse the Z offset
       },
       end: {
         dateTime: endDate.toISOString(),
-        timeZone: 'America/Costa_Rica',
       },
       attendees: [
         { email: email }

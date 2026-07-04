@@ -162,13 +162,15 @@ export function initChatbot() {
             }).then(async (res) => {
               if (res.ok) {
                 const data = await res.json();
-                const successMsg = `✅ ¡Reunión agendada exitosamente! Te he enviado una invitación de Google Calendar con el enlace de Google Meet a tu correo.\nEnlace directo: ${data.link}`;
+                const successMsg = `✅ ¡Reunión agendada exitosamente! Te he enviado una invitación de Google Calendar con el enlace a tu correo.\nEnlace directo: ${data.link || "Revisa tu correo"}`;
                 addMessage(successMsg, 'bot');
               } else {
-                throw new Error("Error scheduling");
+                const errData = await res.json();
+                throw new Error(errData.error || "Error desconocido");
               }
             }).catch(err => {
-              addMessage("Hubo un error al intentar agendar en el calendario. Usa /whatsapp para coordinar la reunión manualmente.", 'bot');
+              console.error("Schedule API error:", err);
+              addMessage(`Hubo un error al intentar agendar en el calendario (${err.message}). Usa /whatsapp para coordinar la reunión manualmente.`, 'bot');
             });
             
           } catch(e) {
