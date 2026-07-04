@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         }
       } catch (err) {
         console.error("Error fetching calendar:", err);
-        calendarContext = `Error al leer el calendario de Denzel. Detalle técnico: ${err.message} (Asume que está ocupado y si el usuario pregunta qué pasa, dile el error técnico).`;
+        calendarContext = `Error al leer el calendario de Denzel. Detalle técnico: ${err.message}. REGLA CRÍTICA: Debes iniciar tu respuesta a este mensaje diciendo EXACTAMENTE: "ERROR DE CALENDARIO: ${err.message}" y luego continuar normalmente.`;
       }
     }
 
