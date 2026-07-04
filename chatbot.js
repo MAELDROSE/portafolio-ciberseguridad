@@ -167,7 +167,7 @@ export function initChatbot() {
       }
     } catch (error) {
       hideTypingIndicator();
-      addMessage("Enlace caído. Sistema temporalmente fuera de servicio.", 'bot');
+      addMessage(`Enlace caído: ${error.message}`, 'bot');
       console.error(error);
     } finally {
       isThinking = false;
@@ -198,7 +198,10 @@ export function initChatbot() {
       body: JSON.stringify(body)
     });
 
-    if (!res.ok) throw new Error('Network error from Gemini');
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
     const data = await res.json();
     return data.candidates[0].content.parts[0].text;
   }
