@@ -105,27 +105,6 @@ export function initChatbot() {
     const text = inputField.value.trim();
     if (!text || isThinking) return;
 
-    // Hardcode direct WhatsApp command
-    if (text.toLowerCase() === '/whatsapp') {
-      inputField.value = '';
-      addMessage(text, 'user');
-      addMessage('Abriendo canal cifrado a WhatsApp...', 'bot');
-      
-      // Extract the last real user query from history
-      const userMsgs = conversationHistory.filter(m => m.role === 'user');
-      const lastQuery = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].parts[0].text : '';
-      
-      let waText = "Hola Denzel, vengo de tu portafolio web.";
-      if (lastQuery) {
-        waText += " Estaba conversando con el bot sobre este proyecto/consulta: " + lastQuery;
-      }
-      
-      setTimeout(() => {
-        window.open(`https://wa.me/50685513262?text=${encodeURIComponent(waText)}`, '_blank');
-      }, 1000);
-      return;
-    }
-
     inputField.value = '';
     inputField.disabled = true;
     sendBtn.disabled = true;
@@ -162,6 +141,25 @@ export function initChatbot() {
             console.error("Error parsing SEND_EMAIL json", e);
             const errorMsg = "Ocurrió un error al procesar la notificación. Escribe /whatsapp para contactar a Denzel directamente.";
             addMessage(errorMsg, 'bot');
+          }
+        } else if (response.includes("[OPEN_WHATSAPP]")) {
+          try {
+            const jsonStr = response.split("[OPEN_WHATSAPP]")[1].trim();
+            const waData = JSON.parse(jsonStr);
+            
+            const waText = `Hola Denzel, vengo de tu portafolio web.\n\n👤 Nombre: ${waData.name}\n📧 Correo: ${waData.email}\n💬 Consulta / Sistema: ${waData.message}`;
+            
+            const successMsg = "Abriendo canal cifrado a WhatsApp con tu información estructurada...";
+            conversationHistory.push({ role: 'model', parts: [{ text: successMsg }] });
+            addMessage(successMsg, 'bot');
+            
+            setTimeout(() => {
+              window.open(`https://wa.me/50685513262?text=${encodeURIComponent(waText)}`, '_blank');
+            }, 1000);
+            
+          } catch(e) {
+            console.error("Error parsing OPEN_WHATSAPP json", e);
+            window.open(`https://wa.me/50685513262?text=Hola%20Denzel,%20vengo%20de%20tu%20portafolio.`, '_blank');
           }
         } else {
           // Guardar la respuesta normal de la IA en el historial
