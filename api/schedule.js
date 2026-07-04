@@ -47,16 +47,12 @@ export default async function handler(req, res) {
       },
       end: {
         dateTime: endDate.toISOString(),
-      },
-      attendees: [
-        { email: email }
-      ]
+      }
     };
 
     const response = await calendar.events.insert({
       calendarId: calendarId,
-      resource: event,
-      sendUpdates: 'all' // Enviar correo a los invitados
+      resource: event
     });
 
     return res.status(200).json({ 
