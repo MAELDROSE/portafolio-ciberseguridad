@@ -57,6 +57,25 @@ export default async function handler(req, res) {
     const startDate = new Date(datetime);
     const endDate = new Date(startDate.getTime() + 30 * 60000);
 
+    // === VALIDACIÓN SERVER-SIDE DE HORARIO (Hora Central) ===
+    // Convertir a hora Central (UTC-6) para validar
+    const centralOffset = -6 * 60; // minutos
+    const utcMs = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+    const centralDate = new Date(utcMs + (centralOffset * 60000));
+    const centralHour = centralDate.getHours();
+    const centralMinutes = centralDate.getMinutes();
+    const centralDay = centralDate.getDay(); // 0=Dom, 1=Lun ... 6=Sab
+    const centralTimeDecimal = centralHour + (centralMinutes / 60); // ej: 12.5 = 12:30
+
+    // Solo Lunes(1) a Viernes(5)
+    if (centralDay === 0 || centralDay === 6) {
+      return res.status(400).json({ error: 'Solo se pueden agendar reuniones de Lunes a Viernes.' });
+    }
+    // Solo de 12:30 (12.5) a 20:30 (20.5)
+    if (centralTimeDecimal < 12.5 || centralTimeDecimal > 20.5) {
+      return res.status(400).json({ error: 'Solo se pueden agendar reuniones entre 12:30 PM y 8:30 PM (Hora Central).' });
+    }
+
     let meetLink = '';
     try {
       const spaceResponse = await meet.spaces.create({});
