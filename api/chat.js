@@ -47,6 +47,12 @@ export default async function handler(req, res) {
     let calendarContext = "Detalle técnico: La variable GOOGLE_CALENDAR_ID no está configurada en Vercel.";
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     
+    // Calcular la hora actual en Central Time (UTC-6)
+    const nowUTC = new Date();
+    const centralOffsetMs = -6 * 60 * 60 * 1000;
+    const nowCentral = new Date(nowUTC.getTime() + centralOffsetMs);
+    const centralISO = nowCentral.toISOString().replace('Z', '-06:00');
+
     if (calendarId) {
       try {
         const authClient = await auth.getClient();
@@ -61,6 +67,7 @@ export default async function handler(req, res) {
           calendarId: calendarId,
           timeMin: timeMin,
           timeMax: timeMax,
+          timeZone: 'America/Mexico_City',
           singleEvents: true,
           orderBy: 'startTime',
         });
@@ -70,11 +77,14 @@ export default async function handler(req, res) {
           const busyTimes = events.map(event => {
             const start = event.start.dateTime || event.start.date;
             const end = event.end.dateTime || event.end.date;
-            return `- Ocupado desde ${start} hasta ${end}`;
+            // Convertir a lectura humana en Central Time
+            const startCT = new Date(start).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'full', timeStyle: 'short' });
+            const endCT = new Date(end).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', timeStyle: 'short' });
+            return `- Ocupado: ${startCT} hasta ${endCT} (Hora Central)`;
           }).join('\n');
-          calendarContext = `La fecha y hora actual del servidor es: ${timeMin}.\nEstos son mis horarios OCUPADOS para los próximos 7 días:\n${busyTimes}\n(Cualquier otro horario está libre. Asume que trabajo de 9am a 6pm de Lunes a Viernes).`;
+          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nEstos son mis horarios OCUPADOS para los próximos 7 días (ya convertidos a Hora Central):\n${busyTimes}\n(Cualquier otro horario entre 9am y 6pm de Lunes a Viernes está libre).`;
         } else {
-          calendarContext = `La fecha y hora actual del servidor es: ${timeMin}.\nTengo toda mi agenda libre de Lunes a Viernes (9am a 6pm) durante los próximos 7 días.`;
+          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nTengo toda mi agenda libre de Lunes a Viernes (9am a 6pm Hora Central) durante los próximos 7 días.`;
         }
       } catch (err) {
         console.error("Error fetching calendar:", err);
@@ -100,14 +110,21 @@ Tus objetivos:
 2. Tu propósito es escuchar al cliente y asesorarlo sobre proyectos tecnológicos (Desarrollo web, ciberseguridad, integraciones, pentesting).
 3. Hazle sentir al usuario que Denzel es el experto ideal para ayudarle a hacer realidad su proyecto de forma segura.
 4. Una vez que tengas su nombre, correo y la idea de su proyecto, ofrécele TRES opciones para continuar: "Si deseas, puedo enviarle estos datos a Denzel por correo, puedes escribir /whatsapp para hablar directo con él, o si prefieres, **puedo revisar su agenda y agendarte una reunión virtual de 30 minutos** ahora mismo."
-5. Si el usuario pide agendar una reunión, revisa la información de mi calendario (ver abajo), ofrécele un par de huecos libres. **CRÍTICO: Debes informarle las horas disponibles y asumir que todas las horas que ofreces están en Zona Horaria Central (Central Time Zone - CST/CDT).**
-6. IMPORTANTE (Generación de comandos silenciados, no los muestres al usuario, solo genéralos y despídete): 
+5. FLUJO DE AGENDAMIENTO (MUY IMPORTANTE - SIGUE ESTOS PASOS EN ORDEN):
+   a) Si el usuario pide agendar una reunión, primero ofrécele 2-3 días disponibles.
+   b) Cuando el usuario elija un DÍA, NO agendes inmediatamente. SIEMPRE pregúntale: "¡Perfecto! ¿A qué hora te queda mejor? Tengo disponible de 9am a 6pm (Hora Central)."
+   c) SOLO cuando el usuario confirme TANTO el día como la hora EXACTA, ENTONCES genera el comando [SCHEDULE_MEETING].
+   d) NUNCA generes el comando [SCHEDULE_MEETING] si el usuario solo ha dicho un día sin hora, o solo una hora sin día.
+6. ZONA HORARIA: Todas las horas que menciones y ofrezcas SIEMPRE son Hora Central (CST/CDT, UTC-6). Cuando generes el comando [SCHEDULE_MEETING], la fecha DEBE llevar el offset -06:00 al final (NO uses "Z").
+7. IMPORTANTE (Generación de comandos silenciados, no los muestres al usuario, solo genéralos y despídete): 
 - Si acepta que le envíes información por correo: 
 [SEND_EMAIL] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
 - Si elige WhatsApp o escribe /whatsapp: 
 [OPEN_WHATSAPP] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
-- Si confirman una fecha/hora EXACTA para una reunión (ej. "Mañana a las 3pm"), genera el comando con la fecha en formato ISO 8601 usando el offset de Zona Horaria Central (-06:00) (Ej: 2026-07-04T15:00:00-06:00):
+- SOLO si ya confirmaron DÍA + HORA EXACTA para una reunión, genera:
 [SCHEDULE_MEETING] {"name": "SuNombre", "email": "SuCorreo", "datetime": "YYYY-MM-DDTHH:MM:00-06:00", "topic": "Asunto"}
+EJEMPLO CORRECTO: Si el cliente dice "el lunes 7 de julio a las 4pm", genera: "datetime": "2026-07-07T16:00:00-06:00"
+EJEMPLO INCORRECTO: "datetime": "2026-07-07T16:00:00Z" (NUNCA uses Z, eso causa que la reunión se agende 6 horas antes)
 
 === CONTEXTO DE MI CALENDARIO EN TIEMPO REAL ===
 ${calendarContext}
