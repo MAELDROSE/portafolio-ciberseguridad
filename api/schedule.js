@@ -45,15 +45,11 @@ export default async function handler(req, res) {
 
     const auth = new GoogleAuth({
       credentials,
-      scopes: [
-        'https://www.googleapis.com/auth/calendar.events',
-        'https://www.googleapis.com/auth/meetings.space.created'
-      ]
+      scopes: ['https://www.googleapis.com/auth/calendar.events']
     });
 
     const authClient = await auth.getClient();
     const calendar = google.calendar({ version: 'v3', auth: authClient });
-    const meet = google.meet({ version: 'v2', auth: authClient });
 
     // Calculate end time (30 minutes after start)
     const startDate = new Date(datetime);
