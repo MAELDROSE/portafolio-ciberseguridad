@@ -74,14 +74,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Solo se pueden agendar reuniones entre 12:30 PM y 8:30 PM (Hora Central).' });
     }
 
-    // Ya no usamos meet.spaces.create() porque requiere Google Workspace pago.
-    // Usamos el enlace personal de Denzel (puedes configurarlo en Vercel como MEET_PERSONAL_LINK)
-    const meetLink = process.env.MEET_PERSONAL_LINK || 'https://meet.google.com/tu-sala-personal';
-
     const event = {
       summary: `Reunión: ${name} - ${topic || 'Consulta'}`,
-      description: `Reunión agendada automáticamente por D.R. SYSTEM CORE.\nCliente: ${name}\nCorreo: ${email}\n\nEnlace de Google Meet: ${meetLink}`,
-      location: meetLink,
+      description: `Reunión agendada automáticamente por D.R. SYSTEM CORE.\nCliente: ${name}\nCorreo: ${email}`,
       start: {
         dateTime: startDate.toISOString(),
       },
@@ -125,7 +120,6 @@ export default async function handler(req, res) {
             <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 15px;">Asunto de la Reunión:</h3>
             <div style="background-color: #1a1a24; border-radius: 8px; padding: 20px; color: #d4d4d8; line-height: 1.6; white-space: pre-wrap; font-family: monospace;">${topic || 'Consulta general'}</div>
             <div style="text-align: center; margin-top: 30px;">
-              ${meetLink ? `<a href="${meetLink}" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-bottom: 15px;">Unirse a Google Meet</a><br>` : ''}
               <a href="${eventLink}" style="background: linear-gradient(90deg, #8A2BE2 0%, #4B0082 100%); color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Ver Evento en Google Calendar</a>
             </div>
           </div>
