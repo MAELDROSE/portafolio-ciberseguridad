@@ -1,9 +1,22 @@
 import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
+import { Ratelimit } from '@upstash/ratelimit';
+import { kv } from '@vercel/kv';
+
+const ratelimit = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(15, '1 m'),
+});
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+  const { success } = await ratelimit.limit(`chat_${ip}`);
+  if (!success) {
+    return res.status(429).json({ error: 'Demasiadas peticiones. Por favor, intenta de nuevo en un minuto.' });
   }
 
   try {

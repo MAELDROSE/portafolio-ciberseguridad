@@ -73,10 +73,22 @@ export function initChatbot() {
 
   // --- 3. Chat Logic ---
   
+  function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, 
+      tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag])
+    );
+  }
+
   function addMessage(text, sender = 'bot') {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${sender}`;
-    msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+    msgDiv.innerHTML = escapeHTML(text).replace(/\n/g, '<br>');
     messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }

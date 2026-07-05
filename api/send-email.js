@@ -1,4 +1,11 @@
 import nodemailer from 'nodemailer';
+import { Ratelimit } from '@upstash/ratelimit';
+import { kv } from '@vercel/kv';
+
+const ratelimit = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(3, '5 m'),
+});
 
 export default async function handler(req, res) {
   // Permitir CORS básico si Vercel lo requiere
@@ -18,6 +25,12 @@ export default async function handler(req, res) {
   // Solo permitir POST para enviar el correo
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method Not Allowed' });
+  }
+
+  const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+  const { success } = await ratelimit.limit(`email_${ip}`);
+  if (!success) {
+    return res.status(429).json({ success: false, message: 'Demasiados correos. Intenta de nuevo en unos minutos.' });
   }
 
   const { name, email, message } = req.body;
