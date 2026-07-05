@@ -248,11 +248,12 @@ export function initChatbot() {
 
     if (!res.ok) {
       let errText = '';
+      const rawText = await res.text();
       try {
-        const errorData = await res.json();
-        errText = errorData.error;
+        const errorData = JSON.parse(rawText);
+        errText = errorData.error || rawText;
       } catch (e) {
-        errText = await res.text();
+        errText = rawText;
       }
       throw new Error(`HTTP ${res.status}: ${errText}`);
     }
