@@ -7,6 +7,8 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(3, '5 m'),
 });
 
+export const maxDuration = 60;
+
 export default async function handler(req, res) {
   // Permitir CORS básico si Vercel lo requiere
   res.setHeader('Access-Control-Allow-Credentials', true);
