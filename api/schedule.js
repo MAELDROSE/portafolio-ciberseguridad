@@ -43,40 +43,46 @@ export default async function handler(req, res) {
 
     const auth = new GoogleAuth({
       credentials,
-      scopes: ['https://www.googleapis.com/auth/calendar.events']
+      scopes: [
+        'https://www.googleapis.com/auth/calendar.events',
+        'https://www.googleapis.com/auth/meetings.space.created'
+      ]
     });
 
     const authClient = await auth.getClient();
     const calendar = google.calendar({ version: 'v3', auth: authClient });
+    const meet = google.meet({ version: 'v2', auth: authClient });
 
     // Calculate end time (30 minutes after start)
     const startDate = new Date(datetime);
     const endDate = new Date(startDate.getTime() + 30 * 60000);
 
+    let meetLink = '';
+    try {
+      const spaceResponse = await meet.spaces.create({});
+      meetLink = spaceResponse.data.meetingUri;
+    } catch (err) {
+      console.error("Error creando Google Meet v2:", err);
+    }
+
     const event = {
       summary: `Reunión: ${name} - ${topic || 'Consulta'}`,
-      description: `Reunión agendada automáticamente por D.R. SYSTEM CORE.\nCliente: ${name}\nCorreo: ${email}`,
+      description: `Reunión agendada automáticamente por D.R. SYSTEM CORE.\nCliente: ${name}\nCorreo: ${email}\n\nEnlace de Google Meet: ${meetLink}`,
+      location: meetLink,
       start: {
         dateTime: startDate.toISOString(),
       },
       end: {
         dateTime: endDate.toISOString(),
-      },
-      conferenceData: {
-        createRequest: {
-          requestId: `meet-${Date.now()}-${Math.floor(Math.random() * 1000)}`
-        }
       }
     };
 
     const response = await calendar.events.insert({
       calendarId: calendarId,
-      conferenceDataVersion: 1,
       resource: event
     });
 
     const eventLink = response.data.htmlLink;
-    const meetLink = response.data.hangoutLink;
 
     // Enviar correo a Denzel notificándole de la nueva reunión
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
