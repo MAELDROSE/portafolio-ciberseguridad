@@ -71,16 +71,27 @@ export default async function handler(req, res) {
       });
 
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <h2 style="color: #8A2BE2;">📅 ¡Nueva Reunión Agendada por la IA!</h2>
-          <p><strong>Cliente:</strong> ${name}</p>
-          <p><strong>Correo:</strong> <a href="mailto:${email}">${email}</a></p>
-          <p><strong>Fecha y Hora:</strong> ${startDate.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })} (Hora Central)</p>
-          <hr>
-          <h3>Proyecto / Consulta:</h3>
-          <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #8A2BE2;">${topic || 'Consulta general'}</p>
-          <br>
-          <a href="${eventLink}" style="background-color: #8A2BE2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Abrir Evento en Google Calendar (para añadir Meet)</a>
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0d0d12; color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #2a2a35; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+          <div style="background: linear-gradient(90deg, #8A2BE2 0%, #4B0082 100%); padding: 25px 30px; text-align: center;">
+            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 1px;">&lt;Denzel/&gt;<span style="font-weight: 300;">Rose</span></h1>
+            <p style="margin: 5px 0 0; color: #e0e0e0; font-size: 14px;">Notificación de Sistema (D.R. Core IA)</p>
+          </div>
+          <div style="padding: 30px;">
+            <h2 style="color: #a78bfa; margin-top: 0; font-size: 20px; border-bottom: 1px solid #2a2a35; padding-bottom: 10px;">📅 Nueva Reunión Agendada</h2>
+            <div style="background-color: #1a1a24; border-radius: 8px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #8A2BE2;">
+              <p style="margin: 0 0 10px; color: #d4d4d8;"><strong style="color: #ffffff; display: inline-block; width: 80px;">Cliente:</strong> ${name.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+              <p style="margin: 0 0 10px; color: #d4d4d8;"><strong style="color: #ffffff; display: inline-block; width: 80px;">Contacto:</strong> <a href="mailto:${email}" style="color: #a78bfa; text-decoration: none;">${email}</a></p>
+              <p style="margin: 0; color: #d4d4d8;"><strong style="color: #ffffff; display: inline-block; width: 80px;">Fecha:</strong> ${startDate.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })} (CST)</p>
+            </div>
+            <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 15px;">Asunto de la Reunión:</h3>
+            <div style="background-color: #1a1a24; border-radius: 8px; padding: 20px; color: #d4d4d8; line-height: 1.6; white-space: pre-wrap; font-family: monospace;">${topic || 'Consulta general'}</div>
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="${eventLink}" style="background: linear-gradient(90deg, #8A2BE2 0%, #4B0082 100%); color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Ver Evento en Google Calendar</a>
+            </div>
+          </div>
+          <div style="background-color: #09090b; padding: 20px; text-align: center; border-top: 1px solid #2a2a35;">
+            <p style="margin: 0; color: #71717a; font-size: 12px;">Agendado automáticamente por IA D.R. SYSTEM CORE.</p>
+          </div>
         </div>
       `;
 
