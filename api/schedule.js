@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Solo se pueden agendar reuniones entre 12:30 PM y 8:30 PM (Hora Central).' });
     }
 
-    const meetLink = process.env.MEET_PERSONAL_LINK || 'https://meet.google.com/tu-sala-personal';
+    const meetLink = process.env.MEET_PERSONAL_LINK || 'https://meet.google.com/ykg-cwdx-uzw';
 
     const event = {
       summary: `Reunión: ${name} - ${topic || 'Consulta'}`,
