@@ -15,8 +15,8 @@ export function initChatbot() {
   // Floating Button
   const toggleBtn = document.createElement('button');
   toggleBtn.className = 'cyber-chat-btn';
-  toggleBtn.innerHTML = '💬';
-  toggleBtn.title = 'Abrir Asistente de IA';
+  toggleBtn.innerHTML = '>_';
+  toggleBtn.title = 'Abrir D.R. SYSTEM CORE';
 
   // Chat Window
   const chatWindow = document.createElement('div');
@@ -25,7 +25,7 @@ export function initChatbot() {
     <div class="chat-header">
       <div class="chat-title">
         <span class="status-dot"></span>
-        Asistente de Denzel (IA)
+        D.R. SYSTEM CORE (IA)
       </div>
       <button class="close-chat-btn">×</button>
     </div>
@@ -268,7 +268,7 @@ export function initChatbot() {
 
   function startConversation() {
     chatStarted = true;
-    const initialGreeting = "¡Hola! 👋 Soy el asistente virtual de Denzel.\n¿En qué te puedo ayudar hoy? Escribe tu consulta para que Denzel pueda revisarla, o usa el comando /whatsapp para contactarlo directamente.";
+    const initialGreeting = "Conexión segura establecida. Soy D.R. SYSTEM CORE (V.2.0).\n¿En qué te puedo asesorar hoy? Escribe tu consulta o usa el comando /whatsapp para contactar a Denzel directamente.";
     
     showTypingIndicator();
     setTimeout(() => {
