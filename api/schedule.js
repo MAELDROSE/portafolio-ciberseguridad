@@ -51,10 +51,7 @@ export default async function handler(req, res) {
       },
       conferenceData: {
         createRequest: {
-          requestId: `meet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          conferenceSolutionKey: {
-            type: 'hangoutsMeet'
-          }
+          requestId: `meet-${Date.now()}-${Math.floor(Math.random() * 1000)}`
         }
       }
     };
