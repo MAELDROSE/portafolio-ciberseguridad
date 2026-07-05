@@ -75,7 +75,7 @@ export default async function handler(req, res) {
           <h2 style="color: #8A2BE2;">📅 ¡Nueva Reunión Agendada por la IA!</h2>
           <p><strong>Cliente:</strong> ${name}</p>
           <p><strong>Correo:</strong> <a href="mailto:${email}">${email}</a></p>
-          <p><strong>Fecha y Hora:</strong> ${startDate.toLocaleString('es-CR', { timeZone: 'America/Costa_Rica' })}</p>
+          <p><strong>Fecha y Hora:</strong> ${startDate.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })} (Hora Central)</p>
           <hr>
           <h3>Proyecto / Consulta:</h3>
           <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #8A2BE2;">${topic || 'Consulta general'}</p>
