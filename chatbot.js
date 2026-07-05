@@ -174,7 +174,8 @@ export function initChatbot() {
             }).then(async (res) => {
               if (res.ok) {
                 const data = await res.json();
-                const successMsg = `✅ ¡Reunión agendada exitosamente! Te he enviado una invitación de Google Calendar con el enlace a tu correo.\nEnlace directo: ${data.link || "Revisa tu correo"}`;
+                let linkStr = data.meet && data.meet !== 'https://meet.google.com/tu-sala-personal' ? data.meet : 'Se te enviará el link por correo pronto.';
+                const successMsg = `✅ ¡Reunión agendada exitosamente en el calendario de Denzel!\n\nEnlace de Google Meet: ${linkStr}\n\nDenzel se comunicará contigo si hay algún cambio.`;
                 addMessage(successMsg, 'bot');
               } else {
                 const errData = await res.json();
