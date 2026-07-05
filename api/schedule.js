@@ -16,13 +16,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
-  const { success } = await ratelimit.limit(`schedule_${ip}`);
-  if (!success) {
-    return res.status(429).json({ error: 'Límite de agendamientos excedido. Intenta de nuevo más tarde.' });
-  }
-
   try {
+    const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+    
+    // Envolver ratelimit en un try-catch interno por si no configuraron Vercel KV
+    try {
+      const { success } = await ratelimit.limit(`schedule_${ip}`);
+      if (!success) {
+        return res.status(429).json({ error: 'Límite de agendamientos excedido. Intenta de nuevo más tarde.' });
+      }
+    } catch (kvError) {
+      console.warn("Ratelimit error (probably missing KV config), ignoring:", kvError);
+    }
     const { name, email, datetime, topic } = req.body;
 
     if (!name || !email || !datetime) {

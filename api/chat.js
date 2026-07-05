@@ -15,13 +15,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
-  const { success } = await ratelimit.limit(`chat_${ip}`);
-  if (!success) {
-    return res.status(429).json({ error: 'Demasiadas peticiones. Por favor, intenta de nuevo en un minuto.' });
-  }
-
   try {
+    const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+    
+    // Envolver ratelimit en un try-catch interno por si no configuraron Vercel KV
+    try {
+      const { success } = await ratelimit.limit(`chat_${ip}`);
+      if (!success) {
+        return res.status(429).json({ error: 'Demasiadas peticiones. Por favor, intenta de nuevo en un minuto.' });
+      }
+    } catch (kvError) {
+      console.warn("Ratelimit error (probably missing KV config), ignoring:", kvError);
+    }
     const { history } = req.body;
     if (!history) {
       return res.status(400).json({ error: 'Missing history in request body' });
