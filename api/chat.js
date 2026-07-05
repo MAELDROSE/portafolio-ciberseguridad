@@ -82,9 +82,9 @@ export default async function handler(req, res) {
             const endCT = new Date(end).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', timeStyle: 'short' });
             return `- Ocupado: ${startCT} hasta ${endCT} (Hora Central)`;
           }).join('\n');
-          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nEstos son mis horarios OCUPADOS para los próximos 7 días (ya convertidos a Hora Central):\n${busyTimes}\n(Cualquier otro horario entre 9am y 6pm de Lunes a Viernes está libre).`;
+          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nEstos son mis horarios OCUPADOS para los próximos 7 días (ya convertidos a Hora Central):\n${busyTimes}\n(Cualquier otro horario entre 12:30pm y 8:30pm de Lunes a Viernes está libre).`;
         } else {
-          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nTengo toda mi agenda libre de Lunes a Viernes (9am a 6pm Hora Central) durante los próximos 7 días.`;
+          calendarContext = `La fecha y hora ACTUAL en Zona Horaria Central (CST/CDT, UTC-6) es: ${centralISO}.\nTengo toda mi agenda libre de Lunes a Viernes (12:30pm a 8:30pm Hora Central) durante los próximos 7 días.`;
         }
       } catch (err) {
         console.error("Error fetching calendar:", err);
@@ -112,7 +112,7 @@ Tus objetivos:
 4. Una vez que tengas su nombre, correo y la idea de su proyecto, ofrécele TRES opciones para continuar: "Si deseas, puedo enviarle estos datos a Denzel por correo, puedes escribir /whatsapp para hablar directo con él, o si prefieres, **puedo revisar su agenda y agendarte una reunión virtual de 30 minutos** ahora mismo."
 5. FLUJO DE AGENDAMIENTO (MUY IMPORTANTE - SIGUE ESTOS PASOS EN ORDEN):
    a) Si el usuario pide agendar una reunión, primero ofrécele 2-3 días disponibles.
-   b) Cuando el usuario elija un DÍA, NO agendes inmediatamente. SIEMPRE pregúntale: "¡Perfecto! ¿A qué hora te queda mejor? Tengo disponible de 9am a 6pm (Hora Central)."
+   b) Cuando el usuario elija un DÍA, NO agendes inmediatamente. SIEMPRE pregúntale: "¡Perfecto! ¿A qué hora te queda mejor? Tengo disponible de 12:30pm a 8:30pm (Hora Central)."
    c) SOLO cuando el usuario confirme TANTO el día como la hora EXACTA, ENTONCES genera el comando [SCHEDULE_MEETING].
    d) NUNCA generes el comando [SCHEDULE_MEETING] si el usuario solo ha dicho un día sin hora, o solo una hora sin día.
 6. ZONA HORARIA: Todas las horas que menciones y ofrezcas SIEMPRE son Hora Central (CST/CDT, UTC-6). Cuando generes el comando [SCHEDULE_MEETING], la fecha DEBE llevar el offset -06:00 al final (NO uses "Z").
