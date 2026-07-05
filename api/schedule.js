@@ -48,15 +48,25 @@ export default async function handler(req, res) {
       },
       end: {
         dateTime: endDate.toISOString(),
+      },
+      conferenceData: {
+        createRequest: {
+          requestId: `meet-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          conferenceSolutionKey: {
+            type: 'hangoutsMeet'
+          }
+        }
       }
     };
 
     const response = await calendar.events.insert({
       calendarId: calendarId,
+      conferenceDataVersion: 1,
       resource: event
     });
 
     const eventLink = response.data.htmlLink;
+    const meetLink = response.data.hangoutLink;
 
     // Enviar correo a Denzel notificándole de la nueva reunión
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
@@ -86,6 +96,7 @@ export default async function handler(req, res) {
             <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 15px;">Asunto de la Reunión:</h3>
             <div style="background-color: #1a1a24; border-radius: 8px; padding: 20px; color: #d4d4d8; line-height: 1.6; white-space: pre-wrap; font-family: monospace;">${topic || 'Consulta general'}</div>
             <div style="text-align: center; margin-top: 30px;">
+              ${meetLink ? `<a href="${meetLink}" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-bottom: 15px;">Unirse a Google Meet</a><br>` : ''}
               <a href="${eventLink}" style="background: linear-gradient(90deg, #8A2BE2 0%, #4B0082 100%); color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Ver Evento en Google Calendar</a>
             </div>
           </div>
@@ -105,7 +116,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ 
       success: true, 
-      link: eventLink 
+      link: meetLink || eventLink 
     });
 
   } catch (error) {
