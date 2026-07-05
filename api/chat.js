@@ -106,8 +106,8 @@ Tus objetivos:
 [SEND_EMAIL] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
 - Si elige WhatsApp o escribe /whatsapp: 
 [OPEN_WHATSAPP] {"name": "SuNombre", "email": "SuCorreo", "message": "Resumen de su consulta"}
-- Si confirman una fecha/hora EXACTA para una reunión (ej. "Mañana a las 3pm"), genera el comando con la fecha en formato ISO 8601 (Ej: 2026-07-04T15:00:00Z):
-[SCHEDULE_MEETING] {"name": "SuNombre", "email": "SuCorreo", "datetime": "YYYY-MM-DDTHH:MM:00Z", "topic": "Asunto"}
+- Si confirman una fecha/hora EXACTA para una reunión (ej. "Mañana a las 3pm"), genera el comando con la fecha en formato ISO 8601 usando el offset de Zona Horaria Central (-06:00) (Ej: 2026-07-04T15:00:00-06:00):
+[SCHEDULE_MEETING] {"name": "SuNombre", "email": "SuCorreo", "datetime": "YYYY-MM-DDTHH:MM:00-06:00", "topic": "Asunto"}
 
 === CONTEXTO DE MI CALENDARIO EN TIEMPO REAL ===
 ${calendarContext}
