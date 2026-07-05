@@ -76,13 +76,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Solo se pueden agendar reuniones entre 12:30 PM y 8:30 PM (Hora Central).' });
     }
 
-    let meetLink = '';
-    try {
-      const spaceResponse = await meet.spaces.create({});
-      meetLink = spaceResponse.data.meetingUri;
-    } catch (err) {
-      console.error("Error creando Google Meet v2:", err);
-    }
+    // Ya no usamos meet.spaces.create() porque requiere Google Workspace pago.
+    // Usamos el enlace personal de Denzel (puedes configurarlo en Vercel como MEET_PERSONAL_LINK)
+    const meetLink = process.env.MEET_PERSONAL_LINK || 'https://meet.google.com/tu-sala-personal';
 
     const event = {
       summary: `Reunión: ${name} - ${topic || 'Consulta'}`,
