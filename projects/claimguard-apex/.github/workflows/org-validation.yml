@@ -1,0 +1,31 @@
+name: Salesforce org validation (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    environment: salesforce-demo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install official Salesforce CLI
+        run: npm install --global @salesforce/cli
+      - name: Authenticate dedicated validation org
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          test -n "$SFDX_AUTH_URL"
+          mkdir -p .local
+          chmod 700 .local
+          printf '%s' "$SFDX_AUTH_URL" > .local/authurl
+          chmod 600 .local/authurl
+          sf org login sfdx-url --sfdx-url-file .local/authurl --alias ci
+      - name: Validate metadata and execute Apex tests
+        run: sf project deploy start --dry-run --source-dir force-app --target-org ci --test-level RunLocalTests --wait 30
+      - name: Remove auth file
+        if: always()
+        run: rm -f .local/authurl

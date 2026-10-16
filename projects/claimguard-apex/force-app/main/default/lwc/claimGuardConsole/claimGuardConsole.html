@@ -1,0 +1,87 @@
+<template>
+    <section class="workspace">
+        <header class="heading">
+            <div>
+                <p class="eyebrow">BANKING OPERATIONS · PORTFOLIO DEMO</p>
+                <h1>ClaimGuard</h1>
+                <p>Keep every dispute moving. Keep every decision traceable.</p>
+            </div>
+            <div class="actions">
+                <lightning-button label="Refresh" onclick={refresh} disabled={busy}></lightning-button>
+                <template lwc:if={canCreate}><lightning-button label="New claim" variant="brand" onclick={openCreate} disabled={busy}></lightning-button></template>
+            </div>
+        </header>
+        <div class="metrics">
+            <article class="metric"><p>Open claims</p><strong>{summary.open}</strong><span>Within your record access</span></article>
+            <article class="metric"><p>Critical priority</p><strong>{summary.critical}</strong><span>Deterministic triage rules</span></article>
+            <article class="metric danger"><p>Past deadline</p><strong>{summary.overdue}</strong><span>Open and awaiting action</span></article>
+            <article class="metric"><p>Escalated and open</p><strong>{summary.escalated}</strong><span>Flagged by scheduled Apex</span></article>
+        </div>
+        <section class="panel" aria-label="Claims work queue">
+            <div class="filters">
+                <div><h2>Claims work queue</h2><p>Earliest deadlines first · up to 200 matching records</p></div>
+                <lightning-input type="search" label="Search claim or transaction" maxlength="80" onchange={handleSearch}></lightning-input>
+                <lightning-combobox label="Status" value={statusFilter} options={statusOptions} onchange={handleFilter}></lightning-combobox>
+            </div>
+            <template lwc:if={errorMessage}><p class="slds-text-color_error slds-p-around_medium" role="alert">{errorMessage}</p></template>
+            <template lwc:if={busy}><lightning-spinner alternative-text="Saving or refreshing claims" size="small"></lightning-spinner></template>
+            <lightning-datatable key-field="Id" data={rows} columns={columns} hide-checkbox-column onrowaction={handleRowAction}></lightning-datatable>
+            <template lwc:if={empty}><p class="empty">No matching claims. Create a synthetic claim to start the demo.</p></template>
+            <p class="footnote">{rowCount} records shown. Metrics cover all accessible open claims and ignore table filters. Amounts retain their original currency.</p>
+        </section>
+        <p class="disclaimer">Synthetic data only. SLA targets and triage scores are illustrative business rules.</p>
+    </section>
+
+    <template lwc:if={selected}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="claim-modal-title" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header"><h2 id="claim-modal-title" class="slds-text-heading_medium">Review {selected.Name}</h2></header>
+                <div class="slds-modal__content slds-p-around_large">
+                    <p class="slds-m-bottom_small">{selected.Transaction_Ref__c} · {selected.Priority__c} · {selected.Status__c}</p>
+                    <p>Deadline: <lightning-formatted-date-time value={selected.Due_At__c} year="numeric" month="short" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time></p>
+                    <p class="slds-m-bottom_medium">Triage score: {selected.Risk_Score__c}</p>
+                    <template lwc:if={canClose}>
+                        <lightning-textarea label="Resolution summary (at least 20 characters)" value={resolution} maxlength="2000" onchange={handleResolution} disabled={busy}></lightning-textarea>
+                    </template>
+                    <template lwc:else><p class="slds-m-bottom_medium">{selected.Resolution__c}</p></template>
+                    <h3 class="slds-text-heading_small slds-m-top_large slds-m-bottom_small">Audit timeline</h3>
+                    <template lwc:if={auditLoading}><p>Loading audit events…</p></template>
+                    <template lwc:if={noAudit}><p>No audit events available.</p></template>
+                    <ol class="timeline">
+                        <template for:each={audit} for:item="entry">
+                            <li key={entry.Id}><strong>{entry.Kind__c}</strong><p>{entry.Detail__c}</p><small><lightning-formatted-date-time value={entry.CreatedDate} year="numeric" month="short" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time> · {entry.CreatedBy.Name}</small></li>
+                        </template>
+                    </ol>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Close" onclick={closeDetail} disabled={busy}></lightning-button>
+                    <template lwc:if={canStartReview}><lightning-button label="Start review" variant="brand" onclick={startReview} disabled={busy} class="slds-m-left_small"></lightning-button></template>
+                    <template lwc:if={canClose}>
+                        <lightning-button label="Reject" onclick={reject} disabled={busy} class="slds-m-left_small"></lightning-button>
+                        <lightning-button label="Resolve" variant="brand" onclick={resolve} disabled={busy} class="slds-m-left_small"></lightning-button>
+                    </template>
+                </footer>
+            </div>
+        </section><div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <template lwc:if={showCreate}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="create-modal-title" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header"><h2 id="create-modal-title" class="slds-text-heading_medium">Create a synthetic claim</h2></header>
+                <div class="slds-modal__content slds-p-around_large">
+                    <p class="slds-m-bottom_medium">Use references such as demo-customer-001 and demo-txn-001. Do not enter personal data or card numbers.</p>
+                    <lightning-record-edit-form object-api-name="Bank_Claim__c" onsuccess={handleCreated} onerror={handleFormError} onsubmit={handleSubmit}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="External_Key__c" required></lightning-input-field>
+                        <lightning-input-field field-name="Customer_Ref__c" required></lightning-input-field>
+                        <lightning-input-field field-name="Transaction_Ref__c" required></lightning-input-field>
+                        <lightning-input-field field-name="Amount__c" required></lightning-input-field>
+                        <lightning-input-field field-name="Currency_Code__c" required></lightning-input-field>
+                        <lightning-input-field field-name="Category__c" required></lightning-input-field>
+                        <div class="slds-m-top_large actions"><lightning-button label="Cancel" onclick={closeCreate} disabled={busy}></lightning-button><lightning-button type="submit" label="Create claim" variant="brand" disabled={busy}></lightning-button></div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+        </section><div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,285 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ClaimGuard Intake API",
+    "version": "1.0.0",
+    "description": "Authenticated internal portfolio API for a fictional bank. Maximum body size: 8192 bytes. Only synthetic reference tokens."
+  },
+  "servers": [
+    {
+      "url": "https://{instance}.my.salesforce.com/services/apexrest",
+      "variables": {
+        "instance": {
+          "default": "example"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "salesforceBearer": []
+    }
+  ],
+  "paths": {
+    "/claimguard/v1/claims": {
+      "post": {
+        "operationId": "createOrReplayClaim",
+        "summary": "Create a claim or replay an identical visible request",
+        "description": "Keep externalKey stable across retries. A unique index protects concurrent requests. Cross-key transaction deduplication is outside scope. An unavailable key never reveals a hidden record ID. Request references are trimmed; keys are lowercased and currency is uppercased. The published example uses canonical values.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "externalKey",
+                  "customerRef",
+                  "transactionRef",
+                  "amount",
+                  "currencyCode",
+                  "category"
+                ],
+                "properties": {
+                  "externalKey": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,79}$"
+                  },
+                  "customerRef": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,79}$"
+                  },
+                  "transactionRef": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 80,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,79}$"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "exclusiveMinimum": true,
+                    "maximum": 10000000,
+                    "multipleOf": 0.01,
+                    "minimum": 0
+                  },
+                  "currencyCode": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "CRC"
+                    ]
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "Unauthorized",
+                      "DoubleCharge",
+                      "ServiceIssue"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "externalKey": "demo-request-001",
+                "customerRef": "demo-customer-001",
+                "transactionRef": "demo-transaction-001",
+                "amount": 125.5,
+                "currencyCode": "USD",
+                "category": "Unauthorized"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Identical visible request replayed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "claimId",
+                    "duplicate"
+                  ],
+                  "properties": {
+                    "claimId": {
+                      "type": "string"
+                    },
+                    "duplicate": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Claim created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "claimId",
+                    "duplicate"
+                  ],
+                  "properties": {
+                    "claimId": {
+                      "type": "string"
+                    },
+                    "duplicate": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed, empty, or unexpected JSON fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient application data access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency key conflict or unavailable key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Body exceeds 8192 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Content type must be application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Input or persistence validation failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Salesforce OAuth authentication failure before Apex execution"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "salesforceBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Salesforce OAuth access token; profile/permission set must also allow API and Apex class access."
+      }
+    }
+  }
+}

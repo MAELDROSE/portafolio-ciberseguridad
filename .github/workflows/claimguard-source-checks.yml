@@ -1,0 +1,27 @@
+name: ClaimGuard source checks
+on:
+  push:
+    branches: ['portfolio/claimguard-apex']
+    paths: ['projects/claimguard-apex/**', '.github/workflows/claimguard-source-checks.yml']
+  pull_request:
+    paths: ['projects/claimguard-apex/**', '.github/workflows/claimguard-source-checks.yml']
+permissions:
+  contents: read
+jobs:
+  validate-source:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/claimguard-apex
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: projects/claimguard-apex/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check

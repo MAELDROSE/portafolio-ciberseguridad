@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+<description>Banking dispute operations portfolio demo.</description><formFactors>Large</formFactors><label>ClaimGuard</label><navType>Standard</navType><tabs>ClaimGuard_Console</tabs><tabs>Bank_Claim__c</tabs><uiType>Lightning</uiType>
+</CustomApplication>

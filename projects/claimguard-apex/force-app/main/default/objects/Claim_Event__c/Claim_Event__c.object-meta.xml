@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+<deploymentStatus>Deployed</deploymentStatus><description>ClaimGuard portfolio demo using synthetic data.</description><enableActivities>false</enableActivities><enableReports>true</enableReports><label>Claim Event</label><nameField><displayFormat>EVT-{000000}</displayFormat><label>Claim Event Number</label><type>AutoNumber</type></nameField><pluralLabel>Claim Events</pluralLabel><sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

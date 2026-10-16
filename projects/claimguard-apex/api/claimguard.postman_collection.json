@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "ClaimGuard | Create, replay, conflict",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order against a dedicated Salesforce development org. Set instanceUrl and accessToken privately. Contains synthetic data only."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "instanceUrl",
+      "value": "https://example.my.salesforce.com"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "claimId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{instanceUrl}}/services/apexrest/claimguard/v1/claims",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"externalKey\": \"demo-request-001\",\n  \"customerRef\": \"demo-customer-001\",\n  \"transactionRef\": \"demo-transaction-001\",\n  \"amount\": 125.5,\n  \"currencyCode\": \"USD\",\n  \"category\": \"Unauthorized\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Created or existing identical request', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+              "if ([200, 201].includes(pm.response.code)) pm.collectionVariables.set('claimId', pm.response.json().claimId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Replay",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{instanceUrl}}/services/apexrest/claimguard/v1/claims",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"externalKey\": \"demo-request-001\",\n  \"customerRef\": \"demo-customer-001\",\n  \"transactionRef\": \"demo-transaction-001\",\n  \"amount\": 125.5,\n  \"currencyCode\": \"USD\",\n  \"category\": \"Unauthorized\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Replay returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Same ID, duplicate true', () => { const body = pm.response.json(); pm.expect(body.claimId).to.eql(pm.collectionVariables.get('claimId')); pm.expect(body.duplicate).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Conflict",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{instanceUrl}}/services/apexrest/claimguard/v1/claims",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"externalKey\": \"demo-request-001\",\n  \"customerRef\": \"demo-customer-001\",\n  \"transactionRef\": \"demo-transaction-001\",\n  \"amount\": 999,\n  \"currencyCode\": \"USD\",\n  \"category\": \"Unauthorized\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Changed request conflicts', () => pm.response.to.have.status(409));",
+              "pm.test('No record ID leaked', () => pm.expect(pm.response.json()).not.to.have.property('claimId'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
